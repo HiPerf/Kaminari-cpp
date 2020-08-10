@@ -8,11 +8,10 @@
 #include <boost/pool/singleton_pool.hpp>
 #include <boost/intrusive_ptr.hpp>
 
+
 namespace kaminari
 {
-
     constexpr uint8_t MAX_PACKET_SIZE = 255;
-
 
     class packet
     {
@@ -21,6 +20,8 @@ namespace kaminari
         friend inline void intrusive_ptr_release(packet* x);
 
     public:
+        packet(uint16_t opcode);
+        
         using ptr = boost::intrusive_ptr<packet>;
         static const uint8_t DataStart = sizeof(uint8_t) * 2 + sizeof(uint16_t) + sizeof(uint8_t);
         
@@ -71,7 +72,6 @@ namespace kaminari
         inline uint8_t size() const { return static_cast<uint8_t>(_ptr - &_data[0]); }
 
     private:
-        packet(uint16_t opcode);
         explicit packet(const packet& other);
 
         static void free(packet* packet);

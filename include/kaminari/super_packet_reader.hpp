@@ -41,11 +41,6 @@ namespace kaminari
     };
 
 
-    super_packet_reader::super_packet_reader(const boost::intrusive_ptr<data_wrapper>& data) :
-        _data(data),
-        _ack_end(nullptr)
-    {}
-
     inline uint16_t super_packet_reader::length() const
     {
         return *reinterpret_cast<const uint16_t*>(_data->data);

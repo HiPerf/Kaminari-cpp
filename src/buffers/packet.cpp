@@ -1,12 +1,11 @@
 #include <kaminari/buffers/packet.hpp>
 
 
-extern ::kaminari::packet* malloc_kaminari_packet(uint16_t opcode);
-extern void free_kaminari_packet(::kaminari::packet* packet);
+extern ::kaminari::packet* get_kaminari_packet(uint16_t opcode);
+extern void release_kaminari_packet(::kaminari::packet* packet);
 
 namespace kaminari
 {
-
     packet::packet(uint16_t opcode) :
         _references(0),
         _on_ack(nullptr)
