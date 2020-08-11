@@ -13,7 +13,7 @@ namespace kaminari
         friend class packer<ordered_packer<Marshal, Allocator>, packet::ptr, Allocator>;
 
     public:
-        using packer_t = packer<ordered_packer<Marshal, Allocator>, packet::ptr>;
+        using packer_t = packer<ordered_packer<Marshal, Allocator>, packet::ptr, Allocator>;
 
     public:
         using packer<ordered_packer<Marshal, Allocator>, packet::ptr, Allocator>::packer;
@@ -121,7 +121,7 @@ namespace kaminari
         // Pending inclusions are those forced, not yet included in any block or
         // which have expired without an ack
         return _has_new_packet ||
-            cx::overflow::sub(block_id, _last_block) >= packer_t::resend_threshold; // We do want 0s here
+            cx::overflow::sub(block_id, _last_block) >= packer_t::_resend_threshold; // We do want 0s here
     }
 
     template <class Marshal, class Allocator>

@@ -31,7 +31,7 @@ namespace kaminari
         using pending_t = Pending;
 
     public:
-        packer(uint8_t resend_threashold, const Allocator& alloc = Allocator());
+        packer(uint8_t resend_threshold, const Allocator& alloc = Allocator());
 
         inline void ack(uint16_t block_id);
         inline void clear();
@@ -40,7 +40,7 @@ namespace kaminari
         inline uint16_t get_actual_block(const std::vector<uint16_t>& blocks, uint16_t block_id);
         inline uint16_t new_block_cost(uint16_t block_id, detail::packets_by_block& by_block);
 
-        uint8_t _resend_threashold;
+        uint8_t _resend_threshold;
         pending_vector_t _pending;
         Allocator _allocator;
     };
@@ -53,9 +53,9 @@ namespace kaminari
     {}
 
     template <typename Derived, typename Pending, class Allocator>
-    packer<Derived, Pending, Allocator>::packer(uint8_t resend_threashold, const Allocator& alloc) :
+    packer<Derived, Pending, Allocator>::packer(uint8_t resend_threshold, const Allocator& alloc) :
         _allocator(alloc),
-        _resend_threashold(resend_threashold)
+        _resend_threshold(resend_threshold)
     {}
 
     template <typename Derived, typename Pending, class Allocator>
@@ -110,7 +110,7 @@ namespace kaminari
         // which have expired without an ack
         return force ||
             blocks.empty() ||
-            cx::overflow::sub(block_id, blocks.back()) >= _resend_threashold; // We do want 0s here
+            cx::overflow::sub(block_id, blocks.back()) >= _resend_threshold; // We do want 0s here
     }
 
     template <typename Derived, typename Pending, class Allocator>

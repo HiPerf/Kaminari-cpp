@@ -13,7 +13,7 @@ namespace kaminari
         friend class packer<immediate_packer<Marshal, Allocator>, packet::ptr, Allocator>;
 
     public:
-        using packer_t = packer<immediate_packer<Marshal, Allocator>, packet::ptr, detail::pending_data<packet::ptr>>;
+        using packer_t = packer<immediate_packer<Marshal, Allocator>, packet::ptr, Allocator>;
 
     public:
         using packer<immediate_packer<Marshal, Allocator>, packet::ptr, Allocator>::packer;
