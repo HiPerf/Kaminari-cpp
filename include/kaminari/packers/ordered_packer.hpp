@@ -69,7 +69,7 @@ namespace kaminari
         for (auto it = packer_t::_pending.rbegin(); it != packer_t::_pending.rend(); ++it, ++num_inserted)
         {
             auto& pending = *it;
-            uint16_t actual_block = get_actual_block(pending->blocks, block_id);
+            uint16_t actual_block = packer_t::get_actual_block(pending->blocks, block_id);
             uint16_t size = pending->data->size();
             if (auto it = by_block.find(actual_block); it != by_block.end())
             {

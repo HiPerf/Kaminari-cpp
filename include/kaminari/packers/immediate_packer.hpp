@@ -54,12 +54,12 @@ namespace kaminari
     {
         for (auto& pending : packer_t::_pending)
         {
-            if (!is_pending(pending->blocks, block_id, false))
+            if (!packer_t::is_pending(pending->blocks, block_id, false))
             {
                 continue;
             }
 
-            uint16_t actual_block = get_actual_block(pending->blocks, block_id);
+            uint16_t actual_block = packer_t::get_actual_block(pending->blocks, block_id);
             uint16_t size = pending->data->size();
             if (auto it = by_block.find(actual_block); it != by_block.end())
             {
