@@ -17,7 +17,7 @@ namespace kaminari
         basic_client();
         
         inline void received_packet(const boost::intrusive_ptr<data_wrapper>& data);
-        inline constexpr bool has_pending_super_packets() const;
+        inline bool has_pending_super_packets() const;
         inline boost::intrusive_ptr<data_wrapper> first_super_packet();
 
     private:
@@ -29,7 +29,7 @@ namespace kaminari
         _pending_super_packets.push_back(data);
     }
 
-    inline constexpr bool basic_client::has_pending_super_packets() const
+    inline bool basic_client::has_pending_super_packets() const
     {
         return !_pending_super_packets.empty();
     }

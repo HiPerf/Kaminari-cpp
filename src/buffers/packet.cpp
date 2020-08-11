@@ -24,7 +24,7 @@ namespace kaminari
 
     boost::intrusive_ptr<packet> packet::make(uint16_t opcode)
     {
-        auto packet = malloc_kaminari_packet(opcode);
+        auto packet = get_kaminari_packet(opcode);
         return boost::intrusive_ptr<class packet>(packet);
     }
 
@@ -35,7 +35,7 @@ namespace kaminari
             packet->_on_ack();
         }
 
-        free_kaminari_packet(packet);
+        release_kaminari_packet(packet);
     }
 
     const packet& packet::finish(uint8_t counter)
