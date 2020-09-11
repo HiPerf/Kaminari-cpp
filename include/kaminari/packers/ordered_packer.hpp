@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <kaminari/packers/packer.hpp>
@@ -66,7 +67,7 @@ namespace kaminari
 
         // Insert from older to newer, all of them
         auto num_inserted = 0;
-        for (auto it = packer_t::_pending.rbegin(); it != packer_t::_pending.rend(); ++it, ++num_inserted)
+        for (auto it = packer_t::_pending.begin(); it != packer_t::_pending.end(); ++it, ++num_inserted)
         {
             auto& pending = *it;
             uint16_t actual_block = packer_t::get_actual_block(pending->blocks, block_id);
