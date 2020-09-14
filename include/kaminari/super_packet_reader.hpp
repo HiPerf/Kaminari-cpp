@@ -5,6 +5,7 @@
 #include <kaminari/super_packet.hpp>
 #include <kaminari/cx/overflow.hpp>
 #include <kaminari/protocol/basic_protocol.hpp>
+#include <kaminari/client/basic_client.hpp>
 #include <kaminari/types/data_wrapper.hpp>
 
 #include <boost/intrusive_ptr.hpp>
@@ -14,7 +15,6 @@
 
 namespace kaminari
 {
-    class basic_client;
     class protocol;
 
     class super_packet_reader
@@ -27,15 +27,18 @@ namespace kaminari
 
         inline uint16_t length() const;
         inline uint16_t id() const;
+        static inline uint16_t id(const boost::intrusive_ptr<data_wrapper>& data);
 
         template <typename Queues>
-        void handle_acks(super_packet<Queues>* super_packet);
+        void handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client);
 
         inline uint8_t* data();
         inline bool has_data();
 
         template <typename Marshal>
         void handle_packets(basic_client* client, basic_protocol* protocol);
+
+
     private:
         boost::intrusive_ptr<data_wrapper> _data;
         const uint8_t* _ack_end;
@@ -52,8 +55,13 @@ namespace kaminari
         return *reinterpret_cast<const uint16_t*>(_data->data + sizeof(uint16_t));
     }
 
+    inline uint16_t super_packet_reader::id(const boost::intrusive_ptr<data_wrapper>& data)
+    {
+        return *reinterpret_cast<const uint16_t*>(data->data + sizeof(uint16_t));
+    }
+
     template <typename Queues>
-    void super_packet_reader::handle_acks(super_packet<Queues>* super_packet)
+    void super_packet_reader::handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client)
     {
         _ack_end = _data->data + sizeof(uint16_t) * 2;
         uint8_t num_acks = *reinterpret_cast<const uint8_t*>(_ack_end);
@@ -61,8 +69,30 @@ namespace kaminari
 
         for (uint8_t i = 0; i < num_acks; ++i)
         {
+            // Get ack and remove pending packets
             uint16_t ack = *reinterpret_cast<const uint16_t*>(_ack_end);
             super_packet->ack(ack);
+
+            // Compute lag estimation
+            auto sent_ts = protocol->super_packet_timestamp(ack);
+            if (sent_ts && cx::overflow::sub(super_packet->id(), ack) > protocol->max_blocks_until_resync())
+            {
+                auto lag = client->lag();
+                auto diff = std::chrono::duration_cast<TimeBase>(std::chrono::steady_clock::now() - *sent_ts).count();
+                if (lag == 0)
+                {
+                    client->lag(diff);
+                }
+                else
+                {
+                    client->lag(static_cast<uint64_t>(
+                        static_cast<float>(lag) * 0.9f +
+                        static_cast<float>(diff) / 2.0f * 0.1f)
+                    );
+                }
+            }
+
+            // Advance to next
             _ack_end += sizeof(uint16_t);
         }
     }

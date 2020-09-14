@@ -31,30 +31,15 @@ namespace kaminari
     template <typename Queues>
     bool protocol::update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
-        // bool needs_ping = ++_since_last_send >= PingInterval;
-        // if (needs_ping)
-        // {
-        //     _since_last_send = 0;
-        //     auto timestamp = ::now();
-        //     rpc::ping(client, { .timestamp = static_cast<uint64_t>(timestamp.time_since_epoch().count()) }, [timestamp, ticket = client->ticket()]() {
-        //         if (!ticket->valid())
-        //         {
-        //             return;
-        //         }
-
-        //         // Now update the client lag as a running mean, divide by two to count only half round trip
-        //         auto cl = ticket->get();
-        //         auto elapsed = std::chrono::duration_cast<TimeBase>(::now() - timestamp);
-        //         auto ms = elapsed.count();
-        //         cl->lag(static_cast<uint64_t>(
-        //             static_cast<float>(cl->lag()) * 0.9 +
-        //             static_cast<float>(ms) / 2 * 0.1)
-        //         );
-        //         log<LOG_LEVEL_DEBUG, LOG_CLIENT>(std::forward_as_tuple("Client updated lag estimation is ", cl->lag()));
-        //     });
-        // }
-
-        return super_packet->finish();
+        if (super_packet->finish())
+        {
+            _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
+            return true;
+        }
+        
+        // If there is no new superpacket, erase it from the map
+        _send_timestamps.erase(super_packet->id());
+        return false;
     }
 
     template <typename Marshal, typename Queues>
@@ -105,7 +90,7 @@ namespace kaminari
         }
 
         // Acknowledge user acks
-        reader.handle_acks(super_packet);
+        reader.handle_acks(super_packet, this, client);
 
         // Let's add it to pending acks
         if (reader.has_data())
@@ -114,7 +99,6 @@ namespace kaminari
         }
 
         // Update timestamp
-        // TODO(gpascualg): Enforce steady clock?
         _timestamp_block_id = _last_block_id_read;
         _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
 

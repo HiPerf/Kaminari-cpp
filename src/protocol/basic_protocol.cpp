@@ -70,4 +70,17 @@ namespace kaminari
         
         return true;
     }
+
+
+    std::optional<std::chrono::steady_clock::time_point> basic_protocol::super_packet_timestamp(uint16_t block_id) noexcept
+    {
+        if (auto it = _send_timestamps.find(block_id); it != _send_timestamps.end())
+        {
+            auto ts = it->second;
+            _send_timestamps.erase(block_id);
+            return std::move(ts);
+        }
+
+        return std::nullopt;
+    }
 }

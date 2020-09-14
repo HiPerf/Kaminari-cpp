@@ -2,7 +2,9 @@
 
 #include <kaminari/cx/overflow.hpp>
 
+#include <chrono>
 #include <inttypes.h>
+#include <optional>
 #include <set>
 #include <unordered_map>
 
@@ -43,6 +45,8 @@ namespace kaminari
         inline uint16_t max_blocks_until_disconnection() const noexcept;
         inline void max_blocks_until_disconnection(uint16_t value) noexcept;
 
+        std::optional<std::chrono::steady_clock::time_point> super_packet_timestamp(uint16_t block_id) noexcept;
+
     protected:
         BufferMode _buffer_mode;
         uint16_t _since_last_send;
@@ -64,6 +68,9 @@ namespace kaminari
         // Configuration
         uint16_t _max_blocks_until_resync;
         uint16_t _max_blocks_until_disconnection;
+
+        // Lag estimation
+        std::unordered_map<uint16_t, std::chrono::steady_clock::time_point> _send_timestamps;
     };
 
 
