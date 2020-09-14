@@ -24,7 +24,7 @@ namespace kaminari
 
         template <typename Queues>
         bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
-        template <typename Marshal, typename Queues>
+        template <typename Marshal, typename TimeBase, typename Queues>
         bool read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
     };
 
@@ -36,13 +36,13 @@ namespace kaminari
             _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
             return true;
         }
-        
+
         // If there is no new superpacket, erase it from the map
         _send_timestamps.erase(super_packet->id());
         return false;
     }
 
-    template <typename Marshal, typename Queues>
+    template <typename Marshal, typename TimeBase, typename Queues>
     bool protocol::read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
         if (_buffer_mode == BufferMode::BUFFERING)
@@ -90,7 +90,7 @@ namespace kaminari
         }
 
         // Acknowledge user acks
-        reader.handle_acks(super_packet, this, client);
+        reader.handle_acks<TimeBase>(super_packet, this, client);
 
         // Let's add it to pending acks
         if (reader.has_data())
@@ -105,8 +105,7 @@ namespace kaminari
         // Actually handle inner packets
         reader.handle_packets<Marshal>(client, this);
 
-        _last_block_id_read = current_id;
-        _expected_block_id = cx::overflow::inc(current_id);
+        _expected_block_id = cx::overflow::inc(_last_block_id_read);
         _since_last_recv = 0;
         return true;
     }

@@ -29,7 +29,7 @@ namespace kaminari
         inline uint16_t id() const;
         static inline uint16_t id(const boost::intrusive_ptr<data_wrapper>& data);
 
-        template <typename Queues>
+        template <typename TimeBase, typename Queues>
         void handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client);
 
         inline uint8_t* data();
@@ -60,7 +60,7 @@ namespace kaminari
         return *reinterpret_cast<const uint16_t*>(data->data + sizeof(uint16_t));
     }
 
-    template <typename Queues>
+    template <typename TimeBase, typename Queues>
     void super_packet_reader::handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client)
     {
         _ack_end = _data->data + sizeof(uint16_t) * 2;
@@ -141,7 +141,7 @@ namespace kaminari
                 {
                     // TODO(gpascualg): Should we kick the player for packet forging?
                     return;
-                }   
+                }
 
                 if (protocol->resolve(&reader, block_id))
                 {
