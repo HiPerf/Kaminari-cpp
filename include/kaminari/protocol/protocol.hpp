@@ -16,10 +16,6 @@ namespace kaminari
 {
     class packet_reader;
 
-    // TODO(gpascualg): Make this configurable via protocol
-    inline constexpr uint16_t MaxBlocksUntilDisconnection = 300;
-    inline constexpr uint16_t MaximumBlocksUntilResync = 200;
-
 
     class protocol : public basic_protocol
     {
@@ -73,7 +69,7 @@ namespace kaminari
 
         if (!client->has_pending_super_packets())
         {
-            if (++_since_last_recv > MaxBlocksUntilDisconnection)
+            if (++_since_last_recv > _max_blocks_until_disconnection)
             {
                 return false;
             }
@@ -89,44 +85,41 @@ namespace kaminari
         }
 
         super_packet_reader reader(client->first_super_packet());
-        uint16_t current_id = reader.id();
 
         // Unordered packets are not to be parsed, as they contain outdated information
         // in case that information was important, it would have already been resent
-        if (!is_expected(current_id))
+        if (!is_expected(reader.id()))
         {
             // It is still a recv, though
             _since_last_recv = 0;
             return true;
         }
 
-        // Acknowledge user acks
-        reader.iterate_acks([super_packet](auto ack)
+        uint16_t previous_id = _last_block_id_read;
+        _last_block_id_read = reader.id();
+
+        // Detect loop
+        if (previous_id > _last_block_id_read)
         {
-            super_packet->ack(ack);
-        });
+            _loop_counter = cx::overflow::inc(_loop_counter);
+        }
+
+        // Acknowledge user acks
+        reader.handle_acks(super_packet);
 
         // Let's add it to pending acks
         if (reader.has_data())
         {
-            super_packet->schedule_ack(current_id);
+            super_packet->schedule_ack(_last_block_id_read);
         }
 
         // Update timestamp
         // TODO(gpascualg): Enforce steady clock?
-        _timestamp_block_id = current_id;
+        _timestamp_block_id = _last_block_id_read;
         _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
 
         // Actually handle inner packets
         reader.handle_packets<Marshal>(client, this);
-
-        // TODO(gpascualg): This can still be improved by much
-        // Clear all resolved packets ranging from last received ID to current minus Resync threshold
-        for (auto id = _last_block_id_read; cx::overflow::le(id, current_id);)
-        {
-            _already_resolved.erase(cx::overflow::sub(id, MaximumBlocksUntilResync));
-            id = cx::overflow::inc(id);
-        }
 
         _last_block_id_read = current_id;
         _expected_block_id = cx::overflow::inc(current_id);

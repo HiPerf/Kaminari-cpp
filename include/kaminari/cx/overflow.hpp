@@ -44,7 +44,7 @@ namespace cx
         template <typename T>
         inline constexpr T inc(T x)
         {
-            return static_cast<T>(++x);
+            return static_cast<T>(x + 1);
         }
 
         template <typename T>

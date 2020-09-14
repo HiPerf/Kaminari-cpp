@@ -2,6 +2,7 @@
 
 #include <kaminari/buffers/packet_reader.hpp>
 #include <kaminari/buffers/packet.hpp>
+#include <kaminari/super_packet.hpp>
 #include <kaminari/cx/overflow.hpp>
 #include <kaminari/protocol/basic_protocol.hpp>
 #include <kaminari/types/data_wrapper.hpp>
@@ -27,8 +28,8 @@ namespace kaminari
         inline uint16_t length() const;
         inline uint16_t id() const;
 
-        template <typename C>
-        void iterate_acks(C&& callback);
+        template <typename Queues>
+        void handle_acks(super_packet<Queues>* super_packet);
 
         inline uint8_t* data();
         inline bool has_data();
@@ -51,8 +52,8 @@ namespace kaminari
         return *reinterpret_cast<const uint16_t*>(_data->data + sizeof(uint16_t));
     }
 
-    template <typename C>
-    void super_packet_reader::iterate_acks(C&& callback)
+    template <typename Queues>
+    void super_packet_reader::handle_acks(super_packet<Queues>* super_packet)
     {
         _ack_end = _data->data + sizeof(uint16_t) * 2;
         uint8_t num_acks = *reinterpret_cast<const uint8_t*>(_ack_end);
@@ -61,7 +62,7 @@ namespace kaminari
         for (uint8_t i = 0; i < num_acks; ++i)
         {
             uint16_t ack = *reinterpret_cast<const uint16_t*>(_ack_end);
-            callback(ack);
+            super_packet->ack(ack);
             _ack_end += sizeof(uint16_t);
         }
     }
