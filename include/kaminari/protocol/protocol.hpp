@@ -24,8 +24,17 @@ namespace kaminari
 
         template <typename Queues>
         bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+
+
         template <typename Marshal, typename TimeBase, typename Queues>
         bool read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+
+    private:
+        template <typename Marshal, typename TimeBase, typename Queues>
+        void read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+
+    private:
+        uint8_t _buffer_amount;
     };
 
     template <typename Queues>
@@ -45,49 +54,62 @@ namespace kaminari
     template <typename Marshal, typename TimeBase, typename Queues>
     bool protocol::read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
-        if (_buffer_mode == BufferMode::BUFFERING)
-        {
-            // TODO(gpascualg): Implement packet buffering
-            //assert_true(false, "BufferMode::BUFFERING not yet supported");
-            return false;
-        }
+        // Update timestamp
+        _timestamp_block_id = _expected_block_id;
+        _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
 
         if (!client->has_pending_super_packets())
         {
+            // Increment expected eiter way
+            _expected_block_id = cx::overflow::inc(_expected_block_id);
+
             if (++_since_last_recv > _max_blocks_until_disconnection)
             {
+                // TODO(gpascualg): Disconnect or smth
                 return false;
             }
 
             return false;
         }
 
-        if (_buffer_mode == BufferMode::READY)
+        // There is something, whatever, so we've recv
+        _since_last_recv = 0;
+
+        // Keep reading superpackets until we reach the currently expected
+        while (client->has_pending_super_packets() && 
+            !cx::overflow::ge(client->first_super_packet_id(), _expected_block_id)
         {
-            // TODO(gpascualg): Reading from the buffered packets, respecting order
-            // assert_true(false, "BufferMode::READY not yet supported");
-            return false;
+            read_impl(client, super_packet);
         }
 
+        // Flag for next block
+        _expected_block_id = cx::overflow::inc(_expected_block_id);
+
+        return true;
+    }
+
+    template <typename Marshal, typename TimeBase, typename Queues>
+    void protocol::read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+    {
         super_packet_reader reader(client->first_super_packet());
 
         // Unordered packets are not to be parsed, as they contain outdated information
         // in case that information was important, it would have already been resent
-        if (!is_expected(reader.id()))
+        if (cx::overflow::le(reader.id(), _last_block_id_read))
         {
             // It is still a recv, though
             _since_last_recv = 0;
-            return true;
+            return;
         }
 
-        uint16_t previous_id = _last_block_id_read;
-        _last_block_id_read = reader.id();
-
         // Detect loop
-        if (previous_id > _last_block_id_read)
+        if (_last_block_id_read > reader.id()) // Ie. 65536 > 0
         {
             _loop_counter = cx::overflow::inc(_loop_counter);
         }
+
+        // Update block id
+        _last_block_id_read = reader.id();
 
         // Acknowledge user acks
         reader.handle_acks<TimeBase>(super_packet, this, client);
@@ -98,15 +120,7 @@ namespace kaminari
             super_packet->schedule_ack(_last_block_id_read);
         }
 
-        // Update timestamp
-        _timestamp_block_id = _last_block_id_read;
-        _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
-
         // Actually handle inner packets
         reader.handle_packets<Marshal>(client, this);
-
-        _expected_block_id = cx::overflow::inc(_last_block_id_read);
-        _since_last_recv = 0;
-        return true;
     }
 }

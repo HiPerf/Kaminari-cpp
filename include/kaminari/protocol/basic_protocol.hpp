@@ -16,8 +16,7 @@ namespace kaminari
     enum class BufferMode
     {
         NO_BUFFER,
-        BUFFERING,
-        READY
+        BUFFER,
     };
     
 

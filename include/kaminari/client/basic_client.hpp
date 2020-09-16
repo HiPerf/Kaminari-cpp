@@ -16,6 +16,7 @@ namespace kaminari
     public:
         basic_client() noexcept;
         
+        inline uint16_t first_super_packet_id() const noexcept;
         inline bool has_pending_super_packets() const noexcept;
         inline boost::intrusive_ptr<data_wrapper> first_super_packet() noexcept;
 
@@ -26,6 +27,12 @@ namespace kaminari
         boost::circular_buffer<boost::intrusive_ptr<data_wrapper>> _pending_super_packets;
         uint16_t _lag;
     };
+
+    inline uint16_t basic_client::first_super_packet_id() const noexcept
+    {
+        // TODO(gpascualg): This is a hack, move out of here
+        return *reinterpret_cast<const uint16_t*>(_pending_super_packets.front()->data + sizeof(uint16_t));
+    }
 
     inline bool basic_client::has_pending_super_packets() const noexcept
     {

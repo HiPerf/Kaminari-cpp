@@ -55,11 +55,6 @@ namespace kaminari
         return *reinterpret_cast<const uint16_t*>(_data->data + sizeof(uint16_t));
     }
 
-    inline uint16_t super_packet_reader::id(const boost::intrusive_ptr<data_wrapper>& data)
-    {
-        return *reinterpret_cast<const uint16_t*>(data->data + sizeof(uint16_t));
-    }
-
     template <typename TimeBase, typename Queues>
     void super_packet_reader::handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client)
     {
