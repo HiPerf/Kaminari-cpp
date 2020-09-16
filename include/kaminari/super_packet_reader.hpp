@@ -138,7 +138,7 @@ namespace kaminari
                     return;
                 }
 
-                if (protocol->resolve(&reader, block_id))
+                if (protocol->resolve(client, &reader, block_id))
                 {
                     Marshal::handle_packet(&reader, client);
                 }

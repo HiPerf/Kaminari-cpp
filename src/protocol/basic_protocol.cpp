@@ -1,6 +1,7 @@
 #include <kaminari/protocol/basic_protocol.hpp>
 #include <kaminari/buffers/packet.hpp>
 #include <kaminari/buffers/packet_reader.hpp>
+#include <kaminari/client/basic_client.hpp>
 #include <kaminari/super_packet.hpp>
 
 
@@ -13,7 +14,7 @@ namespace kaminari
 
     void basic_protocol::reset() noexcept
     {
-        _buffer_mode = BufferMode::NO_BUFFER;
+        _buffer_size = 0;
         _since_last_send = 0;
         _since_last_recv = 0;
         _last_block_id_read = 0;
@@ -26,7 +27,7 @@ namespace kaminari
         _max_blocks_until_disconnection = 300;
     }
 
-    bool basic_protocol::resolve(packet_reader* packet, uint16_t block_id) noexcept
+    bool basic_protocol::resolve(basic_client* client, packet_reader* packet, uint16_t block_id) noexcept
     {
         auto opcode = packet->opcode();
         uint8_t id = packet->id();
@@ -48,7 +49,7 @@ namespace kaminari
             // Resync detection
             else if (cx::overflow::sub(_last_block_id_read, block_id) > _max_blocks_until_resync)
             {
-                // TODO(gpascualg): Warn resync!
+                client->flag_desync();
                 return false;
             }
 

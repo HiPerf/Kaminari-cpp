@@ -32,9 +32,6 @@ namespace kaminari
     private:
         template <typename Marshal, typename TimeBase, typename Queues>
         void read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
-
-    private:
-        uint8_t _buffer_amount;
     };
 
     template <typename Queues>
@@ -65,7 +62,7 @@ namespace kaminari
 
             if (++_since_last_recv > _max_blocks_until_disconnection)
             {
-                // TODO(gpascualg): Disconnect or smth
+                client->flag_disconnection();
                 return false;
             }
 
@@ -75,9 +72,12 @@ namespace kaminari
         // There is something, whatever, so we've recv
         _since_last_recv = 0;
 
+        // Should we buffer?
+        uint16_t expected_id = cx::overflow::sub(_expected_block_id, _buffer_size);
+
         // Keep reading superpackets until we reach the currently expected
         while (client->has_pending_super_packets() && 
-            !cx::overflow::ge(client->first_super_packet_id(), _expected_block_id)
+            !cx::overflow::ge(client->first_super_packet_id(), expected_id)
         {
             read_impl(client, super_packet);
         }
@@ -100,6 +100,12 @@ namespace kaminari
             // It is still a recv, though
             _since_last_recv = 0;
             return;
+        }
+
+        // Check how old the packet is wrt what we expect
+        if (cx::overflow::sub(_expected_block_id, reader.id()) > max_blocks_until_resync())
+        {
+            client->flag_desync();
         }
 
         // Detect loop

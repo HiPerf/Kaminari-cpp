@@ -12,13 +12,8 @@
 namespace kaminari
 {
     class packet_reader;
+    class basic_client;
 
-    enum class BufferMode
-    {
-        NO_BUFFER,
-        BUFFER,
-    };
-    
 
     class basic_protocol
     {
@@ -29,7 +24,7 @@ namespace kaminari
         basic_protocol() noexcept;
 
         void reset() noexcept;
-        bool resolve(packet_reader* packet, uint16_t block_id) noexcept;
+        bool resolve(basic_client* client, packet_reader* packet, uint16_t block_id) noexcept;
 
         inline uint16_t last_block_id_read() const noexcept;
         inline uint16_t expected_block_id() const noexcept;
@@ -46,8 +41,10 @@ namespace kaminari
 
         std::optional<std::chrono::steady_clock::time_point> super_packet_timestamp(uint16_t block_id) noexcept;
 
+        inline void set_buffer_size(uint8_t buffer_size);
+
     protected:
-        BufferMode _buffer_mode;
+        uint8_t _buffer_size;
         uint16_t _since_last_send;
         uint16_t _since_last_recv;
         uint16_t _last_block_id_read;
@@ -122,5 +119,10 @@ namespace kaminari
     inline void basic_protocol::max_blocks_until_disconnection(uint16_t value) noexcept
     {
         _max_blocks_until_disconnection = value;
+    }
+
+    inline void basic_protocol::set_buffer_size(uint8_t buffer_size)
+    {
+        _buffer_size = buffer_size;
     }
 }
