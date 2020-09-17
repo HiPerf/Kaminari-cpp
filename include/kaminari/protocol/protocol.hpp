@@ -73,13 +73,13 @@ namespace kaminari
         _since_last_recv = 0;
 
         // Should we buffer?
-        uint16_t expected_id = cx::overflow::sub(_expected_block_id, _buffer_size);
+        uint16_t expected_id = cx::overflow::sub(_expected_block_id, static_cast<uint16_t>(_buffer_size));
 
         // Keep reading superpackets until we reach the currently expected
-        while (client->has_pending_super_packets() && 
-            !cx::overflow::ge(client->first_super_packet_id(), expected_id)
+        while (client->has_pending_super_packets() &&
+            !cx::overflow::geq(client->first_super_packet_id(), expected_id))
         {
-            read_impl(client, super_packet);
+            read_impl<Marshal, TimeBase>(client, super_packet);
         }
 
         // Flag for next block

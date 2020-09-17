@@ -28,7 +28,6 @@ namespace kaminari
 
         inline uint16_t last_block_id_read() const noexcept;
         inline uint16_t expected_block_id() const noexcept;
-        inline bool is_expected(uint16_t id) const noexcept;
 
         inline void set_timestamp(uint64_t timestamp, uint16_t block_id) noexcept;
         inline uint64_t block_timestamp(uint16_t block_id) noexcept;
@@ -78,11 +77,6 @@ namespace kaminari
     inline uint16_t basic_protocol::expected_block_id() const noexcept
     { 
         return _expected_block_id; 
-    }
-
-    inline bool basic_protocol::is_expected(uint16_t id) const noexcept
-    {
-        return _expected_block_id == 0 || !cx::overflow::le(id, _expected_block_id); 
     }
 
     inline void basic_protocol::set_timestamp(uint64_t timestamp, uint16_t block_id) noexcept
