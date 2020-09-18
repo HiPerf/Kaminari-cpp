@@ -71,7 +71,8 @@ namespace kaminari
         else
         {
             // Add to pending
-            auto pending = packer_t::_allocator.construct(packer_t::_allocator.allocate(1), packet_by_opcode { packet, opcode });
+            auto pending = packer_t::_allocator.allocate(1);
+            std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, packet_by_opcode { packet, opcode });
             packer_t::_pending.push_back(pending);
             _opcode_map.emplace(opcode, pending);
         }

@@ -49,7 +49,8 @@ namespace kaminari
         }
         else
         {
-            auto pending = packer_t::_allocator.construct(packer_t::_allocator.allocate(1), data);
+            auto pending = packer_t::_allocator.allocate(1);
+            std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, std::forward<T>(data));
             packer_t::_pending.push_back(pending);
             _id_map.emplace(id, pending);
         }

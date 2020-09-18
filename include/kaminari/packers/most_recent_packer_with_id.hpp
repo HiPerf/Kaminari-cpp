@@ -70,7 +70,8 @@ namespace kaminari
         else
         {
             // Add to pending
-            auto pending = packer_t::_allocator.construct(packer_t::_allocator.allocate(1), packet_with_id { packet, id };
+            auto pending = packer_t::_allocator.allocate(1);
+            std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, packet_with_id{ packet, id });
             packer_t::_pending.push_back(pending);
             _id_map.emplace(id, pending);
         }
