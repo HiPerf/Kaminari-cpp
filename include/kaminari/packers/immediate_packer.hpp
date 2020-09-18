@@ -45,7 +45,8 @@ namespace kaminari
     void immediate_packer<Marshal, Allocator>::add(const packet::ptr& packet)
     {
         // Add to pending
-        auto pending = packer_t::_allocator.construct(packer_t::_allocator.allocate(1), packet);
+        auto pending = packer_t::_allocator.allocate(1);
+        std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, packet);
         packer_t::_pending.push_back(pending);
     }
 
