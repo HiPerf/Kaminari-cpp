@@ -37,13 +37,15 @@ namespace kaminari
     template <typename Queues>
     bool protocol::update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
-        if (super_packet->finish())
+        if (super_packet->finish() || needs_ping())
         {
+            scheduled_send();
             _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
             return true;
         }
 
         // If there is no new superpacket, erase it from the map
+        skipped_send();
         _send_timestamps.erase(super_packet->id());
         return false;
     }

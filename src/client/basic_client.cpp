@@ -9,4 +9,11 @@ namespace kaminari
         _pending_super_packets(100),
         _lag(50)
     {}
+
+    void basic_client::reset() noexcept
+    {
+        _status = status::CONNECTED;
+        _pending_super_packets.clear();
+        _lag = 50;
+    }
 }

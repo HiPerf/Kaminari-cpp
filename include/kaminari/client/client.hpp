@@ -14,6 +14,8 @@ namespace kaminari
         template <typename... Args>
         client(uint8_t resend_threshold, Args&&... allocator_args);
 
+        inline void reset() noexcept;
+
         inline void received_packet(const boost::intrusive_ptr<data_wrapper>& data);
 
         inline kaminari::super_packet<Queues>* super_packet();
@@ -32,11 +34,17 @@ namespace kaminari
     {}
 
     template <typename Queues>
+    inline void client<Queues>::reset() noexcept
+    {
+        basic_client::reset();
+        _super_packet.reset();
+        _protocol.reset();
+    }
+
+    template <typename Queues>
     inline void client<Queues>::received_packet(const boost::intrusive_ptr<data_wrapper> & data)
     {
         _pending_super_packets.push_back(data);
-
-        // TODO(gpascualg): Lag estimation
     }
 
     template <typename Queues>

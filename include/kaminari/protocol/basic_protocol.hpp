@@ -26,6 +26,9 @@ namespace kaminari
         void reset() noexcept;
         bool resolve(basic_client* client, packet_reader* packet, uint16_t block_id) noexcept;
 
+        inline void scheduled_send() noexcept;
+        inline void skipped_send() noexcept;
+
         inline uint16_t last_block_id_read() const noexcept;
         inline uint16_t expected_block_id() const noexcept;
 
@@ -37,6 +40,10 @@ namespace kaminari
 
         inline uint16_t max_blocks_until_disconnection() const noexcept;
         inline void max_blocks_until_disconnection(uint16_t value) noexcept;
+
+        inline bool needs_ping() const noexcept;
+        inline uint16_t ping_interval() const noexcept;
+        inline void ping_interval(uint16_t value) noexcept;
 
         std::optional<std::chrono::steady_clock::time_point> super_packet_timestamp(uint16_t block_id) noexcept;
 
@@ -63,11 +70,22 @@ namespace kaminari
         // Configuration
         uint16_t _max_blocks_until_resync;
         uint16_t _max_blocks_until_disconnection;
+        uint16_t _ping_interval;
 
         // Lag estimation
         std::unordered_map<uint16_t, std::chrono::steady_clock::time_point> _send_timestamps;
     };
 
+
+    inline void basic_protocol::scheduled_send() noexcept
+    {
+        _since_last_send = 0;
+    }
+
+    inline void basic_protocol::skipped_send() noexcept
+    {
+        _since_last_send += 1;
+    }
 
     inline uint16_t basic_protocol::last_block_id_read() const noexcept 
     { 
@@ -113,6 +131,21 @@ namespace kaminari
     inline void basic_protocol::max_blocks_until_disconnection(uint16_t value) noexcept
     {
         _max_blocks_until_disconnection = value;
+    }
+
+    inline bool basic_protocol::needs_ping() const noexcept
+    {
+        return _since_last_send >= _ping_interval;
+    }
+
+    inline uint16_t basic_protocol::ping_interval() const noexcept
+    {
+        return _ping_interval;
+    }
+
+    inline void basic_protocol::ping_interval(uint16_t value) noexcept
+    {
+        _ping_interval = value;
     }
 
     inline void basic_protocol::set_buffer_size(uint8_t buffer_size)

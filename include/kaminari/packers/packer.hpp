@@ -36,6 +36,8 @@ namespace kaminari
         inline void ack(uint16_t block_id);
         inline void clear();
 
+        inline void reset();
+
         bool is_pending(const std::vector<uint16_t>& blocks, uint16_t block_id, bool force);
         inline uint16_t get_actual_block(const std::vector<uint16_t>& blocks, uint16_t block_id);
         inline uint16_t new_block_cost(uint16_t block_id, detail::packets_by_block& by_block);
@@ -95,6 +97,12 @@ namespace kaminari
 
         // Clear
         _pending.clear();
+    }
+
+    template <typename Derived, typename Pending, class Allocator>
+    inline void packer<Derived, Pending, Allocator>::reset()
+    {
+        static_cast<packer<Derived, Pending, Allocator>&>(*this).clear();
     }
 
     template <typename Derived, typename Pending, class Allocator>

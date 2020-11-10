@@ -18,14 +18,18 @@ namespace kaminari
         {
             CONNECTED,
             DESYNCED,
-            PENDING_DISCONNECTION
+            PENDING_DISCONNECTION,
+            DISCONNECTING
         };
 
     public:
         basic_client() noexcept;
+        void reset() noexcept;
         
         inline status connexion_status() const noexcept;
+        inline bool pending_disconnection() const noexcept;
         inline void flag_disconnection() noexcept;
+        inline void flag_disconnecting() noexcept;
         inline void flag_desync() noexcept;
 
         inline uint16_t first_super_packet_id() const noexcept;
@@ -47,9 +51,20 @@ namespace kaminari
         return _status;
     }
 
+    inline bool basic_client::pending_disconnection() const noexcept
+    {
+        return _status == status::PENDING_DISCONNECTION ||
+            _status == status::DISCONNECTING;
+    }
+
     inline void basic_client::flag_disconnection() noexcept
     {
         _status = status::PENDING_DISCONNECTION;
+    }
+
+    inline void basic_client::flag_disconnecting() noexcept
+    {
+        _status = status::DISCONNECTING;
     }
 
     inline void basic_client::flag_desync() noexcept

@@ -25,6 +25,7 @@ namespace kaminari
         _loop_counter = 0;
         _max_blocks_until_resync = 200;
         _max_blocks_until_disconnection = 300;
+        _ping_interval = 20;
     }
 
     bool basic_protocol::resolve(basic_client* client, packet_reader* packet, uint16_t block_id) noexcept
