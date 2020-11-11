@@ -27,13 +27,14 @@ namespace kaminari
 
         inline uint16_t length() const;
         inline uint16_t id() const;
-        static inline uint16_t id(const boost::intrusive_ptr<data_wrapper>& data);
+        //static inline uint16_t id(const boost::intrusive_ptr<data_wrapper>& data);
 
         template <typename TimeBase, typename Queues>
         void handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client);
 
         inline uint8_t* data();
-        inline bool has_data();
+        inline bool has_data() const;
+        inline bool is_ping_packet() const;
 
         template <typename Marshal>
         void handle_packets(basic_client* client, basic_protocol* protocol);
@@ -42,6 +43,7 @@ namespace kaminari
     private:
         boost::intrusive_ptr<data_wrapper> _data;
         const uint8_t* _ack_end;
+        bool _has_acks;
     };
 
 
@@ -60,6 +62,7 @@ namespace kaminari
     {
         _ack_end = _data->data + sizeof(uint16_t) * 2;
         uint8_t num_acks = *reinterpret_cast<const uint8_t*>(_ack_end);
+        _has_acks = num_acks != 0;
         _ack_end += sizeof(uint8_t);
 
         for (uint8_t i = 0; i < num_acks; ++i)
@@ -89,9 +92,14 @@ namespace kaminari
         return _data->data;
     }
 
-    inline bool super_packet_reader::has_data()
+    inline bool super_packet_reader::has_data() const
     {
         return *reinterpret_cast<const uint8_t*>(_ack_end) != 0x0;
+    }
+
+    inline bool super_packet_reader::is_ping_packet() const
+    {
+        return !_has_acks && !has_data();
     }
 
     template <typename Marshal>

@@ -37,15 +37,20 @@ namespace kaminari
     template <typename Queues>
     bool protocol::update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
-        if (super_packet->finish() || needs_ping())
+        bool needs_ping = basic_protocol::update();
+
+        if (super_packet->finish() || needs_ping)
         {
-            scheduled_send();
+            if (needs_ping)
+            {
+                scheduled_ping();
+            }
+
             _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
             return true;
         }
 
         // If there is no new superpacket, erase it from the map
-        skipped_send();
         _send_timestamps.erase(super_packet->id());
         return false;
     }
@@ -99,8 +104,6 @@ namespace kaminari
         // in case that information was important, it would have already been resent
         if (cx::overflow::le(reader.id(), _last_block_id_read))
         {
-            // It is still a recv, though
-            _since_last_recv = 0;
             return;
         }
 
@@ -123,7 +126,7 @@ namespace kaminari
         reader.handle_acks<TimeBase>(super_packet, this, client);
 
         // Let's add it to pending acks
-        if (reader.has_data())
+        if (reader.has_data() || reader.is_ping_packet())
         {
             super_packet->schedule_ack(_last_block_id_read);
         }

@@ -1,0 +1,176 @@
+diff --git a/include/kaminari/protocol/basic_protocol.hpp b/include/kaminari/protocol/basic_protocol.hpp
+index 8b77539..203323c 100644
+--- a/include/kaminari/protocol/basic_protocol.hpp
++++ b/include/kaminari/protocol/basic_protocol.hpp
+@@ -23,11 +23,11 @@ namespace kaminari
+     public:
+         basic_protocol() noexcept;
+ 
++        bool update() noexcept;
+         void reset() noexcept;
+         bool resolve(basic_client* client, packet_reader* packet, uint16_t block_id) noexcept;
+ 
+-        inline void scheduled_send() noexcept;
+-        inline void skipped_send() noexcept;
++        inline void scheduled_ping() noexcept;
+ 
+         inline uint16_t last_block_id_read() const noexcept;
+         inline uint16_t expected_block_id() const noexcept;
+@@ -51,7 +51,7 @@ namespace kaminari
+ 
+     protected:
+         uint8_t _buffer_size;
+-        uint16_t _since_last_send;
++        uint16_t _since_last_ping;
+         uint16_t _since_last_recv;
+         uint16_t _last_block_id_read;
+         uint16_t _expected_block_id;
+@@ -77,14 +77,9 @@ namespace kaminari
+     };
+ 
+ 
+-    inline void basic_protocol::scheduled_send() noexcept
++    inline void basic_protocol::scheduled_ping() noexcept
+     {
+-        _since_last_send = 0;
+-    }
+-
+-    inline void basic_protocol::skipped_send() noexcept
+-    {
+-        _since_last_send += 1;
++        _since_last_ping = 0;
+     }
+ 
+     inline uint16_t basic_protocol::last_block_id_read() const noexcept 
+@@ -135,7 +130,7 @@ namespace kaminari
+ 
+     inline bool basic_protocol::needs_ping() const noexcept
+     {
+-        return _since_last_send >= _ping_interval;
++        return _since_last_ping >= _ping_interval;
+     }
+ 
+     inline uint16_t basic_protocol::ping_interval() const noexcept
+diff --git a/include/kaminari/protocol/protocol.hpp b/include/kaminari/protocol/protocol.hpp
+index c13f78a..28a7c65 100644
+--- a/include/kaminari/protocol/protocol.hpp
++++ b/include/kaminari/protocol/protocol.hpp
+@@ -37,15 +37,20 @@ namespace kaminari
+     template <typename Queues>
+     bool protocol::update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+     {
+-        if (super_packet->finish() || needs_ping())
++        bool needs_ping = basic_protocol::update();
++
++        if (super_packet->finish() || needs_ping)
+         {
+-            scheduled_send();
++            if (needs_ping)
++            {
++                scheduled_ping();
++            }
++
+             _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
+             return true;
+         }
+ 
+         // If there is no new superpacket, erase it from the map
+-        skipped_send();
+         _send_timestamps.erase(super_packet->id());
+         return false;
+     }
+@@ -99,8 +104,6 @@ namespace kaminari
+         // in case that information was important, it would have already been resent
+         if (cx::overflow::le(reader.id(), _last_block_id_read))
+         {
+-            // It is still a recv, though
+-            _since_last_recv = 0;
+             return;
+         }
+ 
+@@ -123,7 +126,7 @@ namespace kaminari
+         reader.handle_acks<TimeBase>(super_packet, this, client);
+ 
+         // Let's add it to pending acks
+-        if (reader.has_data())
++        if (reader.has_data() || reader.is_ping_packet())
+         {
+             super_packet->schedule_ack(_last_block_id_read);
+         }
+diff --git a/include/kaminari/super_packet_reader.hpp b/include/kaminari/super_packet_reader.hpp
+index 44b51a1..bf19e2d 100644
+--- a/include/kaminari/super_packet_reader.hpp
++++ b/include/kaminari/super_packet_reader.hpp
+@@ -27,13 +27,14 @@ namespace kaminari
+ 
+         inline uint16_t length() const;
+         inline uint16_t id() const;
+-        static inline uint16_t id(const boost::intrusive_ptr<data_wrapper>& data);
++        //static inline uint16_t id(const boost::intrusive_ptr<data_wrapper>& data);
+ 
+         template <typename TimeBase, typename Queues>
+         void handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client);
+ 
+         inline uint8_t* data();
+-        inline bool has_data();
++        inline bool has_data() const;
++        inline bool is_ping_packet() const;
+ 
+         template <typename Marshal>
+         void handle_packets(basic_client* client, basic_protocol* protocol);
+@@ -42,6 +43,7 @@ namespace kaminari
+     private:
+         boost::intrusive_ptr<data_wrapper> _data;
+         const uint8_t* _ack_end;
++        bool _has_acks;
+     };
+ 
+ 
+@@ -60,6 +62,7 @@ namespace kaminari
+     {
+         _ack_end = _data->data + sizeof(uint16_t) * 2;
+         uint8_t num_acks = *reinterpret_cast<const uint8_t*>(_ack_end);
++        _has_acks = num_acks != 0;
+         _ack_end += sizeof(uint8_t);
+ 
+         for (uint8_t i = 0; i < num_acks; ++i)
+@@ -89,11 +92,16 @@ namespace kaminari
+         return _data->data;
+     }
+ 
+-    inline bool super_packet_reader::has_data()
++    inline bool super_packet_reader::has_data() const
+     {
+         return *reinterpret_cast<const uint8_t*>(_ack_end) != 0x0;
+     }
+ 
++    inline bool super_packet_reader::is_ping_packet() const
++    {
++        return !_has_acks && !has_data();
++    }
++
+     template <typename Marshal>
+     void super_packet_reader::handle_packets(basic_client* client, basic_protocol* protocol)
+     {
+diff --git a/src/protocol/basic_protocol.cpp b/src/protocol/basic_protocol.cpp
+index 2bfac3f..30f4667 100644
+--- a/src/protocol/basic_protocol.cpp
++++ b/src/protocol/basic_protocol.cpp
+@@ -12,10 +12,16 @@ namespace kaminari
+         reset();
+     }
+ 
++    bool basic_protocol::update() noexcept
++    {
++        _since_last_ping += 1;
++        return needs_ping();
++    }
++
+     void basic_protocol::reset() noexcept
+     {
+         _buffer_size = 0;
+-        _since_last_send = 0;
++        _since_last_ping = 0;
+         _since_last_recv = 0;
+         _last_block_id_read = 0;
+         _expected_block_id = 0;

@@ -12,10 +12,16 @@ namespace kaminari
         reset();
     }
 
+    bool basic_protocol::update() noexcept
+    {
+        _since_last_ping += 1;
+        return needs_ping();
+    }
+
     void basic_protocol::reset() noexcept
     {
         _buffer_size = 0;
-        _since_last_send = 0;
+        _since_last_ping = 0;
         _since_last_recv = 0;
         _last_block_id_read = 0;
         _expected_block_id = 0;

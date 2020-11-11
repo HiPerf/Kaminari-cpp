@@ -23,11 +23,11 @@ namespace kaminari
     public:
         basic_protocol() noexcept;
 
+        bool update() noexcept;
         void reset() noexcept;
         bool resolve(basic_client* client, packet_reader* packet, uint16_t block_id) noexcept;
 
-        inline void scheduled_send() noexcept;
-        inline void skipped_send() noexcept;
+        inline void scheduled_ping() noexcept;
 
         inline uint16_t last_block_id_read() const noexcept;
         inline uint16_t expected_block_id() const noexcept;
@@ -51,7 +51,7 @@ namespace kaminari
 
     protected:
         uint8_t _buffer_size;
-        uint16_t _since_last_send;
+        uint16_t _since_last_ping;
         uint16_t _since_last_recv;
         uint16_t _last_block_id_read;
         uint16_t _expected_block_id;
@@ -77,14 +77,9 @@ namespace kaminari
     };
 
 
-    inline void basic_protocol::scheduled_send() noexcept
+    inline void basic_protocol::scheduled_ping() noexcept
     {
-        _since_last_send = 0;
-    }
-
-    inline void basic_protocol::skipped_send() noexcept
-    {
-        _since_last_send += 1;
+        _since_last_ping = 0;
     }
 
     inline uint16_t basic_protocol::last_block_id_read() const noexcept 
@@ -135,7 +130,7 @@ namespace kaminari
 
     inline bool basic_protocol::needs_ping() const noexcept
     {
-        return _since_last_send >= _ping_interval;
+        return _since_last_ping >= _ping_interval;
     }
 
     inline uint16_t basic_protocol::ping_interval() const noexcept
