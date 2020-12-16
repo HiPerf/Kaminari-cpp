@@ -75,7 +75,7 @@ namespace kaminari
         for (auto it = part; it != _pending.end(); ++it)
         {
             auto ptr = *it;
-            _allocator.destroy(ptr);
+            std::destroy_at(ptr);
             _allocator.deallocate(ptr, 1);
         }
 
@@ -91,7 +91,7 @@ namespace kaminari
         // Free memory
         for (auto pending : _pending)
         {
-            _allocator.destroy(pending);
+            std::destroy_at(pending);
             _allocator.deallocate(pending, 1);
         }
 
