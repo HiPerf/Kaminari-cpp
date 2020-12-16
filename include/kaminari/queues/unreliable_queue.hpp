@@ -27,7 +27,8 @@ namespace kaminari
                 // Make sure we dont have any pending packet
                 for (auto pending : Packer::_pending)
                 {
-                    Packer::_pending_pool.free(pending);
+                    std::destroy_at(pending);
+                    Packer::_allocator.deallocate(pending, 1);
                 }
 
                 Packer::_pending.clear();
@@ -41,7 +42,9 @@ namespace kaminari
                 // Free those that have reached max retries ar freed
                 for (auto it = part; it != end; ++it)
                 {
-                    Packer::_pending_pool.free(*it);
+                    auto pending = *it;
+                    std::destroy_at(pending);
+                    Packer::_allocator.deallocate(pending, 1);
                 }
 
                 Packer::_pending.resize(std::distance(Packer::_pending.begin(), part));

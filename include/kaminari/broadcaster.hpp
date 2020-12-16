@@ -8,11 +8,15 @@ namespace kaminari
     {
     public:
         template <typename C>
-        void broadcast(C&& callback)
-        {}
+        inline void broadcast(C&& callback)
+        {
+            static_cast<Derived&>(*this).broadcast(std::move(callback));
+        }
 
         template <typename C>
-        void broadcast_single(C&& callback)
-        {}
+        inline void broadcast_single(C&& callback)
+        {
+            static_cast<Derived&>(*this).broadcast_single(std::move(callback));
+        }
     };
 }
