@@ -10,6 +10,21 @@ namespace kaminari
         _lag(50)
     {}
 
+    basic_client::basic_client(basic_client&& other) noexcept :
+        _status(other._status),
+        _lag(other._lag)
+    {
+        _pending_super_packets.swap(other._pending_super_packets);
+    }
+
+    basic_client& basic_client::operator=(basic_client&& other) noexcept
+    {
+        _status = other._status;
+        _pending_super_packets.swap(other._pending_super_packets);
+        _lag = other._lag;
+        return *this;
+    }
+
     void basic_client::reset() noexcept
     {
         _status = status::CONNECTED;

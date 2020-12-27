@@ -24,6 +24,9 @@ namespace kaminari
 
     public:
         basic_client() noexcept;
+        basic_client(basic_client&& other) noexcept;
+        basic_client& operator=(basic_client&& other) noexcept;
+
         void reset() noexcept;
         
         inline status connexion_status() const noexcept;
