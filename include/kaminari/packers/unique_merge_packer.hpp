@@ -7,6 +7,9 @@
 
 namespace kaminari
 {
+    template <typename Detail>
+    using unique_merge_packer_allocator_t = detail::pending_data<Detail>;
+
     template <typename Id, typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator = std::allocator<detail::pending_data<Detail>>>
     class unique_merge_packer : public packer<unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>
     {
@@ -28,7 +31,7 @@ namespace kaminari
         inline void clear();
 
     protected:
-        std::unordered_map<Id, typename packer_t::pending_data*> _id_map;
+        std::unordered_map<Id, unique_merge_packer_allocator_t<Detail>*> _id_map;
     };
 
 

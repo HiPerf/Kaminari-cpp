@@ -5,6 +5,9 @@
 
 namespace kaminari
 {
+    template <typename Detail>
+    using merge_packer_allocator_t = detail::pending_data<Detail>;
+
     template <typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator = std::allocator<detail::pending_data<Detail>>>
     class merge_packer : public packer<merge_packer<Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>
     {
