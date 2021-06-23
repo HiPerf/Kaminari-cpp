@@ -14,7 +14,10 @@
 
 namespace kaminari
 {
-    class packet_reader;
+    namespace buffers
+    {
+        class packet_reader;
+    }
 
 
     class protocol : public basic_protocol

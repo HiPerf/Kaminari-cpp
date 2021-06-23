@@ -56,7 +56,7 @@ namespace kaminari
         Global global;
 
         // TODO(gpascualg): MAGIC NUMBERS, 2 is vector size
-        uint16_t size = packet::DataStart + 2 + packer_t::new_block_cost(block_id, by_block);
+        uint16_t size = buffers::packet::DataStart + 2 + packer_t::new_block_cost(block_id, by_block);
 
         // Populate it as big as we can
         for (auto& pending : packer_t::_pending)
@@ -84,7 +84,7 @@ namespace kaminari
             return;
         }
 
-        packet::ptr packet = packet::make(opcode);
+        buffers::packet::ptr packet = buffers::packet::make(opcode);
         Marshal::pack(packet, global);
         remaining -= size;
 
@@ -94,7 +94,7 @@ namespace kaminari
         }
         else
         {
-            by_block.emplace(block_id, std::initializer_list<packet::ptr> { packet });
+            by_block.emplace(block_id, std::initializer_list<buffers::packet::ptr> { packet });
         }
     }
 

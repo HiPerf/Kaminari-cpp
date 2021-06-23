@@ -34,7 +34,7 @@ namespace kaminari
         _ping_interval = 20;
     }
 
-    bool basic_protocol::resolve(basic_client* client, packet_reader* packet, uint16_t block_id) noexcept
+    bool basic_protocol::resolve(basic_client* client, buffers::packet_reader* packet, uint16_t block_id) noexcept
     {
         auto opcode = packet->opcode();
         uint8_t id = packet->id();

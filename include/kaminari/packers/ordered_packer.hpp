@@ -6,22 +6,22 @@
 
 namespace kaminari
 {
-    using ordered_packer_allocator_t = detail::pending_data<packet::ptr>;
+    using ordered_packer_allocator_t = detail::pending_data<buffers::packet::ptr>;
 
-    template <class Marshal, class Allocator = std::allocator<detail::pending_data<packet::ptr>>>
-    class ordered_packer : public packer<ordered_packer<Marshal, Allocator>, packet::ptr, Allocator>
+    template <class Marshal, class Allocator = std::allocator<detail::pending_data<buffers::packet::ptr>>>
+    class ordered_packer : public packer<ordered_packer<Marshal, Allocator>, buffers::packet::ptr, Allocator>
     {
-        friend class packer<ordered_packer<Marshal, Allocator>, packet::ptr, Allocator>;
+        friend class packer<ordered_packer<Marshal, Allocator>, buffers::packet::ptr, Allocator>;
 
     public:
-        using packer_t = packer<ordered_packer<Marshal, Allocator>, packet::ptr, Allocator>;
+        using packer_t = packer<ordered_packer<Marshal, Allocator>, buffers::packet::ptr, Allocator>;
 
     public:
-        using packer<ordered_packer<Marshal, Allocator>, packet::ptr, Allocator>::packer;
+        using packer<ordered_packer<Marshal, Allocator>, buffers::packet::ptr, Allocator>::packer;
 
         template <typename T, typename... Args>
         void add(uint16_t opcode, T&& data, Args&&... args);
-        void add(const packet::ptr& packet);
+        void add(const buffers::packet::ptr& packet);
         void process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block);
 
     protected:
@@ -40,7 +40,7 @@ namespace kaminari
     void ordered_packer<Marshal, Allocator>::add(uint16_t opcode, T&& data, Args&&... args)
     {
         // Immediate mode means that the structure is packed right now
-        packet::ptr packet = packet::make(opcode, std::forward<Args>(args)...);
+        buffers::packet::ptr packet = buffers::packet::make(opcode, std::forward<Args>(args)...);
         Marshal::pack(packet, data);
 
         // Add to pending
@@ -48,7 +48,7 @@ namespace kaminari
     }
 
     template <class Marshal, class Allocator>
-    void ordered_packer<Marshal, Allocator>::add(const packet::ptr& packet)
+    void ordered_packer<Marshal, Allocator>::add(const buffers::packet::ptr& packet)
     {
         // Add to pending
         auto pending = packer_t::_allocator.allocate(1);
@@ -97,7 +97,7 @@ namespace kaminari
                     break;
                 }
 
-                by_block.emplace(actual_block, std::initializer_list<packet::ptr> { pending->data });
+                by_block.emplace(actual_block, std::initializer_list<buffers::packet::ptr> { pending->data });
             }
 
             pending->blocks.push_back(block_id);

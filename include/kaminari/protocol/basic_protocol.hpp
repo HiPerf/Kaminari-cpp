@@ -11,7 +11,11 @@
 
 namespace kaminari
 {
-    class packet_reader;
+    namespace buffers
+    {
+        class packet_reader;
+    }
+
     class basic_client;
 
 
@@ -25,7 +29,7 @@ namespace kaminari
 
         bool update() noexcept;
         void reset() noexcept;
-        bool resolve(basic_client* client, packet_reader* packet, uint16_t block_id) noexcept;
+        bool resolve(basic_client* client, buffers::packet_reader* packet, uint16_t block_id) noexcept;
 
         inline void scheduled_ping() noexcept;
 

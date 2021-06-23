@@ -9,12 +9,12 @@ namespace kaminari
 {
     struct packet_by_opcode
     {
-        packet_by_opcode(const packet::ptr& p, uint16_t o) :
+        packet_by_opcode(const buffers::packet::ptr& p, uint16_t o) :
             packet(p),
             opcode(o)
         {}
 
-        packet::ptr packet;
+        buffers::packet::ptr packet;
         uint16_t opcode;
     };
 
@@ -35,7 +35,7 @@ namespace kaminari
         void process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block);
 
     private:
-        void add(const packet::ptr& packet, uint16_t opcode);
+        void add(const buffers::packet::ptr& packet, uint16_t opcode);
 
     protected:
         inline void on_ack(const typename packer_t::pending_vector_t::iterator& part);
@@ -51,7 +51,7 @@ namespace kaminari
     void most_recent_packer_by_opcode<Marshal, Allocator>::add(uint16_t opcode, T&& data, Args&&... args)
     {
         // Immediate mode means that the structure is packed right now
-        packet::ptr packet = packet::make(opcode, std::forward<Args>(args)...);
+        buffers::packet::ptr packet = buffers::packet::make(opcode, std::forward<Args>(args)...);
         Marshal::pack(packet, data);
 
         // Add to pending
@@ -59,7 +59,7 @@ namespace kaminari
     }
 
     template <class Marshal, class Allocator>
-    void most_recent_packer_by_opcode<Marshal, Allocator>::add(const packet::ptr& packet, uint16_t opcode)
+    void most_recent_packer_by_opcode<Marshal, Allocator>::add(const buffers::packet::ptr& packet, uint16_t opcode)
     {
         // Add to pending
         if (auto it = _opcode_map.find(opcode); it != _opcode_map.end())
@@ -114,7 +114,7 @@ namespace kaminari
                     break;
                 }
 
-                by_block.emplace(actual_block, std::initializer_list<packet::ptr> { pending->data.packet });
+                by_block.emplace(actual_block, std::initializer_list<buffers::packet::ptr> { pending->data.packet });
             }
 
             pending->blocks.push_back(block_id);

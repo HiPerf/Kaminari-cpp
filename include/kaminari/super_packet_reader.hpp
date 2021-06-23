@@ -127,12 +127,12 @@ namespace kaminari
 
             for (uint8_t j = 0; j < num_packets && remaining > 0; ++j)
             {
-                packet_reader reader(block_pos, block_timestamp, remaining);
+                buffers::packet_reader reader(block_pos, block_timestamp, remaining);
                 uint16_t length = reader.length();
                 block_pos += length;
                 remaining -= length;
 
-                if (length < packet::DataStart || remaining < 0)
+                if (length < buffers::packet::DataStart || remaining < 0)
                 {
                     // TODO(gpascualg): Should we kick the player for packet forging?
                     return;
