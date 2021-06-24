@@ -45,7 +45,7 @@ namespace kaminari
     template <typename Queues>
     bool initiate_handshake(::kaminari::super_packet<Queues>* super_packet)
     {
-        super_packet.set_flag(::kaminari::super_packet_flags::handshake);
+        super_packet->set_flag(::kaminari::super_packet_flags::handshake);
     }
 
     template <typename Queues>

@@ -82,7 +82,7 @@ namespace kaminari
     template <typename... Args>
     super_packet<Queues>::super_packet(uint8_t resend_threshold, Args&&... args) :
         Queues(resend_threshold, std::forward<Args>(args)...),
-        _id(0)
+        _id(0),
         _flags(0)
     {}
 
@@ -113,7 +113,7 @@ namespace kaminari
         _flags = _flags | (uint8_t)flag;
 
         // Clear flags
-        if (auto it = _clear_flags_on_ack.find(block_id); it != _clear_flags_on_ack.end())
+        if (auto it = _clear_flags_on_ack.find(_id); it != _clear_flags_on_ack.end())
         {
             it->second = it->second | (uint8_t)flag;
         }
@@ -168,6 +168,7 @@ namespace kaminari
         //  -1 is to account for the number of blocks
         uint16_t remaining = 500 - (ptr - _data) - 1;
 
+        bool has_data = false;
         if (!has_flag(super_packet_flags::handshake))
         {
             // Organize pending opcodes by superpacket, oldest to newest
@@ -179,7 +180,7 @@ namespace kaminari
             ptr += sizeof(uint8_t);
 
             // Do we have any data?
-            bool has_data = !by_block.empty();
+            has_data = !by_block.empty();
 
             // Has there been any overflow? That can be detected by, for example
             //  checking max-min>thr
