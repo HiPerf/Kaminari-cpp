@@ -11,11 +11,13 @@
 
 namespace kaminari
 {
+    class super_packet_reader;
+    
     namespace buffers
     {
         class packet_reader
         {
-            friend class super_packet_reader;
+            friend class kaminari::super_packet_reader;
 
         public:
             template <typename T>

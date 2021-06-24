@@ -26,16 +26,27 @@ namespace kaminari
         using basic_protocol::basic_protocol;
 
         template <typename Queues>
-        bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+        bool initiate_handshake(::kaminari::super_packet<Queues>* super_packet);
 
+        template <typename Queues>
+        bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
 
         template <typename Marshal, typename TimeBase, typename Queues>
         bool read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
 
     private:
         template <typename Marshal, typename TimeBase, typename Queues>
+        void handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+
+        template <typename Marshal, typename TimeBase, typename Queues>
         void read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
     };
+
+    template <typename Queues>
+    bool initiate_handshake(::kaminari::super_packet<Queues>* super_packet)
+    {
+        super_packet.set_flag(::kaminari::super_packet_flags::handshake);
+    }
 
     template <typename Queues>
     bool protocol::update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
@@ -99,9 +110,48 @@ namespace kaminari
     }
 
     template <typename Marshal, typename TimeBase, typename Queues>
+    void protocol::handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+    {
+        // Update block id
+        _last_block_id_read = reader.id();
+
+        // Acknowledge user acks
+        reader.handle_acks<TimeBase>(super_packet, this, client);
+
+        // Let's add it to pending acks
+        if (reader.has_data() || reader.is_ping_packet())
+        {
+            super_packet->schedule_ack(_last_block_id_read);
+        }
+    }
+    
+    template <typename Marshal, typename TimeBase, typename Queues>
     void protocol::read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
         super_packet_reader reader(client->first_super_packet());
+		
+        // Handshake process skips all procedures, including order
+        if (reader.has_flag(kaminari::super_packet_flags::handshake))
+        {
+			// Make sure we are ready for the next valid block
+            _expected_block_id = cx::overflow::inc(reader.id());
+
+            // Reset all variables related to packet parsing
+            _timestamp_block_id = _expected_block_id;
+            _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
+            _loop_counter = 0;
+            _already_resolved.clear();
+
+            // Acks have no implication for us, but non-acks mean we have to ack
+            if (!reader.has_flag(kaminari::super_packet_flags::ack))
+            {
+                super_packet->set_flag(kaminari::super_packet_flags::ack);
+                super_packet->set_flag(kaminari::super_packet_flags::handshake);
+            }
+
+            // Either case, skip all processing except acks
+            handle_acks<Marshal, TimeBase>(reader, client, super_packet);
+        }
 
         // Unordered packets are not to be parsed, as they contain outdated information
         // in case that information was important, it would have already been resent
@@ -122,19 +172,8 @@ namespace kaminari
             _loop_counter = cx::overflow::inc(_loop_counter);
         }
 
-        // Update block id
-        _last_block_id_read = reader.id();
-
-        // Acknowledge user acks
-        reader.handle_acks<TimeBase>(super_packet, this, client);
-
-        // Let's add it to pending acks
-        if (reader.has_data() || reader.is_ping_packet())
-        {
-            super_packet->schedule_ack(_last_block_id_read);
-        }
-
-        // Actually handle inner packets
+        // Handle acks and inner packets
+        handle_acks<Marshal, TimeBase>(reader, client, super_packet);
         reader.handle_packets<Marshal>(client, this);
     }
 }

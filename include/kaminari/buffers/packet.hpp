@@ -13,11 +13,13 @@ namespace kaminari
 {
     constexpr uint8_t MAX_PACKET_SIZE = 255;
 
+    template <typename Q> class super_packet;
+
     namespace buffers
     {
         class packet
         {
-            template <typename Q> friend class super_packet;
+            template <typename Q> friend class kaminari::super_packet;
             friend inline void intrusive_ptr_add_ref(packet* x);
             friend inline void intrusive_ptr_release(packet* x);
 

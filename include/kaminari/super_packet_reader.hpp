@@ -27,6 +27,7 @@ namespace kaminari
 
         inline uint16_t length() const;
         inline uint16_t id() const;
+        inline bool has_flag(super_packet_flags flag);
         //static inline uint16_t id(const boost::intrusive_ptr<data_wrapper>& data);
 
         template <typename TimeBase, typename Queues>
@@ -57,10 +58,16 @@ namespace kaminari
         return *reinterpret_cast<const uint16_t*>(_data->data + sizeof(uint16_t));
     }
 
+    inline bool super_packet_reader::has_flag(super_packet_flags flag)
+    {
+        auto flags = *reinterpret_cast<const uint8_t*>(_data->data + sizeof(uint16_t) * 2);
+        return flags & (uint8_t)flag;
+    }
+
     template <typename TimeBase, typename Queues>
     void super_packet_reader::handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client)
     {
-        _ack_end = _data->data + sizeof(uint16_t) * 2;
+        _ack_end = _data->data + sizeof(uint16_t) * 2 + sizeof(uint8_t);
         uint8_t num_acks = *reinterpret_cast<const uint8_t*>(_ack_end);
         _has_acks = num_acks != 0;
         _ack_end += sizeof(uint8_t);
