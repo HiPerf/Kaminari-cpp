@@ -8,19 +8,19 @@
 namespace kaminari
 {
     template <typename Detail>
-    using unique_merge_packer_allocator_t = detail::pending_data<Detail>;
+    using vector_merge_packer_allocator_t = detail::pending_data<Detail>;
 
     template <typename Id, typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator = std::allocator<detail::pending_data<Detail>>>
-    class unique_merge_packer : public packer<unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>
+    class vector_merge_packer : public packer<vector_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>
     {
-        friend class packer<unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>;
+        friend class packer<vector_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>;
 
     public:
-        using packer_t = packer<unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>;
+        using packer_t = packer<vector_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>;
         using pending_vector_t = typename packer_t::pending_vector_t;
 
     public:
-        using packer<unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>::packer;
+        using packer<vector_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>, Detail, Allocator>::packer;
 
         template <typename T, typename... Args>
         void add(uint16_t _unused, T&& data, Args&&... args);
@@ -31,13 +31,13 @@ namespace kaminari
         inline void clear();
 
     protected:
-        std::unordered_map<Id, unique_merge_packer_allocator_t<Detail>*> _id_map;
+        std::unordered_map<Id, vector_merge_packer_allocator_t<Detail>*> _id_map;
     };
 
 
     template <typename Id, typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator>
     template <typename T, typename... Args>
-    void unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::add(uint16_t _unused, T&& data, Args&&... args)
+    void vector_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::add(uint16_t _unused, T&& data, Args&&... args)
     {
         // Opcode is ignored
         (void)_unused;
@@ -60,7 +60,7 @@ namespace kaminari
     }
 
     template <typename Id, typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator>
-    inline void unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block)
+    inline void vector_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block)
     {
         // Do not do useless jobs
         if (packer_t::_pending.empty())
@@ -129,7 +129,7 @@ namespace kaminari
     }
 
     template <typename Id, typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator>
-    inline void unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::on_ack(const typename pending_vector_t::iterator& part)
+    inline void vector_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::on_ack(const typename pending_vector_t::iterator& part)
     {
         // Erased acked entities
         for (auto it = part; it != packer_t::_pending.end(); ++it)
@@ -139,7 +139,7 @@ namespace kaminari
     }
 
     template <typename Id, typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator>
-    inline void unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::clear()
+    inline void vector_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::clear()
     {
         _id_map.clear();
     }

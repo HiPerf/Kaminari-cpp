@@ -52,7 +52,7 @@ namespace kaminari
         {
             _unique = packer_t::_allocator.allocate(1);
             std::allocator_traits<Allocator>::construct(packer_t::_allocator, _unique, std::forward<T>(data));
-            packer_t::_pending.push_back(pending);
+            packer_t::_pending.push_back(_unique);
         }
     }
 
@@ -67,7 +67,7 @@ namespace kaminari
 
         // TODO(gpascualg): MAGIC NUMBERS, 2 is vector size
         uint16_t size = buffers::packet::DataStart + packer_t::new_block_cost(block_id, by_block) + Marshal::packet_size(_unique->data);
-        if (next_size > remaining)
+        if (size > remaining)
         {
             return;
         }
