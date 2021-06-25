@@ -48,6 +48,7 @@ namespace kaminari
         inline bool needs_ping() const noexcept;
         inline uint16_t ping_interval() const noexcept;
         inline void ping_interval(uint16_t value) noexcept;
+        inline uint64_t timestamp_diff(uint64_t timestamp) noexcept;
 
         std::optional<std::chrono::steady_clock::time_point> super_packet_timestamp(uint16_t block_id) noexcept;
 
@@ -145,6 +146,11 @@ namespace kaminari
     inline void basic_protocol::ping_interval(uint16_t value) noexcept
     {
         _ping_interval = value;
+    }
+    
+    inline uint64_t basic_protocol::timestamp_diff(uint64_t timestamp) noexcept
+    {
+        return _timestamp - timestamp;
     }
 
     inline void basic_protocol::set_buffer_size(uint8_t buffer_size)
