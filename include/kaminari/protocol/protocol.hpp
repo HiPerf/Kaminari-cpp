@@ -81,7 +81,7 @@ namespace kaminari
             // Increment expected eiter way
             _expected_block_id = cx::overflow::inc(_expected_block_id);
 
-            if (++_since_last_recv > _max_blocks_until_disconnection)
+            if (++_since_last_recv > max_blocks_until_disconnection())
             {
                 client->flag_disconnection();
                 return false;
@@ -151,6 +151,7 @@ namespace kaminari
 
             // Either case, skip all processing except acks
             handle_acks<Marshal, TimeBase>(reader, client, super_packet);
+            return;
         }
 
         // Unordered packets are not to be parsed, as they contain outdated information

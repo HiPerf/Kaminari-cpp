@@ -72,5 +72,17 @@ namespace cx
             }
             return 1;
         }
+
+        template <uint32_t max, typename T>
+        inline constexpr T add_max(T x, T y)
+        {
+            return static_cast<T>(x + y) % static_cast<T>(max);
+        }
+
+        template <uint32_t max, typename T>
+        inline constexpr T inc_max(T x)
+        {
+            return static_cast<T>(x + 1) % static_cast<T>(max);
+        }
     }
 }

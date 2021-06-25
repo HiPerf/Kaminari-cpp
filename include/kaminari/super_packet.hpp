@@ -2,6 +2,7 @@
 
 #include <kaminari/detail/detail.hpp>
 #include <kaminari/buffers/packet.hpp>
+#include <kaminari/cx/overflow.hpp>
 
 #include <inttypes.h>
 #include <mutex>
@@ -230,7 +231,7 @@ namespace kaminari
             }
 
             // Increment _id for next iter, only if not handshake
-            ++_id;
+            _id = cx::overflow::inc(_id);
         }
 
         // Done, write length
