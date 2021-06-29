@@ -44,7 +44,21 @@ namespace kaminari
     template <typename Queues>
     inline void client<Queues>::received_packet(const boost::intrusive_ptr<data_wrapper> & data)
     {
-        _pending_super_packets.push_back(data);
+        // TODO(gpascualg): Ideally, we want to start searching from rbegin(), but then we can't insert
+        uint16_t id = *reinterpret_cast<const uint16_t*>(data->data + sizeof(uint16_t));
+        auto it = _pending_super_packets.begin();
+        while(it != _pending_super_packets.end())
+        {
+            uint16_t curr_id = *reinterpret_cast<const uint16_t*>((*it)->data + sizeof(uint16_t));
+            if (curr_id > id)
+            {
+                break;
+            }
+
+            ++it;
+        }
+
+        _pending_super_packets.insert(it, data);
     }
 
     template <typename Queues>
