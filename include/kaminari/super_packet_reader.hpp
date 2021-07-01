@@ -21,14 +21,16 @@ namespace kaminari
     {
     public:
         explicit super_packet_reader(const boost::intrusive_ptr<data_wrapper>& data);
-        super_packet_reader(const super_packet_reader&) = delete; // Do not copy!
+        super_packet_reader(const super_packet_reader&) = default;
         super_packet_reader(super_packet_reader&&) = default;
         ~super_packet_reader() = default;
+
+        super_packet_reader& operator=(const super_packet_reader&) = default;
+        super_packet_reader& operator=(super_packet_reader&&) = default;
 
         inline uint16_t length() const;
         inline uint16_t id() const;
         inline bool has_flag(super_packet_flags flag);
-        //static inline uint16_t id(const boost::intrusive_ptr<data_wrapper>& data);
 
         template <typename TimeBase, typename Queues>
         void handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client);

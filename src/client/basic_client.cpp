@@ -1,4 +1,5 @@
 #include <kaminari/client/basic_client.hpp>
+#include <kaminari/super_packet_reader.hpp>
 
 
 namespace kaminari
@@ -30,5 +31,22 @@ namespace kaminari
         _status = status::CONNECTED;
         _pending_super_packets.clear();
         _lag = 50;
+    }
+
+    uint16_t basic_client::first_super_packet_id() const noexcept
+    {
+        return _pending_super_packets.front().id();
+    }
+
+    bool basic_client::has_pending_super_packets() const noexcept
+    {
+        return !_pending_super_packets.empty();
+    }
+
+    super_packet_reader basic_client::first_super_packet() noexcept
+    {
+        auto data = _pending_super_packets.front();
+        _pending_super_packets.pop_front();
+        return data;
     }
 }

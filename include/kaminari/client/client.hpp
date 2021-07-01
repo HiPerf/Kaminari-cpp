@@ -16,6 +16,7 @@ namespace kaminari
 
         inline void reset() noexcept;
 
+        template <typename TimeBase>
         inline void received_packet(const boost::intrusive_ptr<data_wrapper>& data);
 
         inline kaminari::super_packet<Queues>* super_packet();
@@ -42,15 +43,25 @@ namespace kaminari
     }
 
     template <typename Queues>
+    template <typename TimeBase>
     inline void client<Queues>::received_packet(const boost::intrusive_ptr<data_wrapper> & data)
     {
+        super_packet_reader reader(data);
+
+        // Make sure to ignore old packets
+        if (_protocol.is_out_of_order(reader.id()))
+        {
+            return;
+        }
+
+        // Handle all acks now
+        _protocol.template handle_acks<TimeBase>(reader, this, super_packet());
+
         // TODO(gpascualg): Ideally, we want to start searching from rbegin(), but then we can't insert
-        uint16_t id = *reinterpret_cast<const uint16_t*>(data->data + sizeof(uint16_t));
         auto it = _pending_super_packets.begin();
         while(it != _pending_super_packets.end())
         {
-            uint16_t curr_id = *reinterpret_cast<const uint16_t*>((*it)->data + sizeof(uint16_t));
-            if (curr_id > id)
+            if (it->id() > reader.id())
             {
                 break;
             }
@@ -58,7 +69,7 @@ namespace kaminari
             ++it;
         }
 
-        _pending_super_packets.insert(it, data);
+        _pending_super_packets.insert(it, reader);
     }
 
     template <typename Queues>

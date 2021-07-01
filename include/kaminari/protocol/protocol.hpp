@@ -34,10 +34,12 @@ namespace kaminari
         template <typename Marshal, typename TimeBase, typename Queues>
         bool read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
 
-    private:
-        template <typename Marshal, typename TimeBase, typename Queues>
+        template <typename TimeBase, typename Queues>
         void handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
 
+        inline bool is_out_of_order(uint16_t id);
+
+    private:
         template <typename Marshal, typename TimeBase, typename Queues>
         void read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
     };
@@ -109,26 +111,23 @@ namespace kaminari
         return true;
     }
 
-    template <typename Marshal, typename TimeBase, typename Queues>
+    template <typename TimeBase, typename Queues>
     void protocol::handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
-        // Update block id
-        _last_block_id_read = reader.id();
-
         // Acknowledge user acks
         reader.handle_acks<TimeBase>(super_packet, this, client);
 
         // Let's add it to pending acks
         if (reader.has_data() || reader.is_ping_packet())
         {
-            super_packet->schedule_ack(_last_block_id_read);
+            super_packet->schedule_ack(reader.id());
         }
     }
     
     template <typename Marshal, typename TimeBase, typename Queues>
     void protocol::read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
-        super_packet_reader reader(client->first_super_packet());
+        super_packet_reader reader = client->first_super_packet();
 		
         // Handshake process skips all procedures, including order
         if (reader.has_flag(kaminari::super_packet_flags::handshake))
@@ -148,16 +147,17 @@ namespace kaminari
                 super_packet->set_flag(kaminari::super_packet_flags::ack);
                 super_packet->set_flag(kaminari::super_packet_flags::handshake);
             }
-
-            // Either case, skip all processing except acks
-            handle_acks<Marshal, TimeBase>(reader, client, super_packet);
+            
+            // Do nothing
+            _last_block_id_read = reader.id();
             return;
         }
 
         // Unordered packets are not to be parsed, as they contain outdated information
         // in case that information was important, it would have already been resent
-        if (cx::overflow::le(reader.id(), _last_block_id_read))
+        if (is_out_of_order(reader.id()))
         {
+            // TODO(gpascualg): Log this, it should never happen
             return;
         }
 
@@ -173,8 +173,13 @@ namespace kaminari
             _loop_counter = cx::overflow::inc(_loop_counter);
         }
 
-        // Handle acks and inner packets
-        handle_acks<Marshal, TimeBase>(reader, client, super_packet);
+        // Handle all inner packets
+        _last_block_id_read = reader.id();
         reader.handle_packets<Marshal>(client, this);
+    }
+
+    inline bool protocol::is_out_of_order(uint16_t id)
+    {
+        return cx::overflow::le(id, _last_block_id_read);
     }
 }
