@@ -31,7 +31,7 @@ namespace kaminari
         template <typename Queues>
         bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
 
-        template <typename Marshal, typename TimeBase, typename Queues>
+        template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
         bool read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
 
         template <typename TimeBase, typename Queues>
@@ -40,7 +40,7 @@ namespace kaminari
         inline bool is_out_of_order(uint16_t id);
 
     private:
-        template <typename Marshal, typename TimeBase, typename Queues>
+        template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
         void read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
     };
 
@@ -71,7 +71,7 @@ namespace kaminari
         return false;
     }
 
-    template <typename Marshal, typename TimeBase, typename Queues>
+    template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
     bool protocol::read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
         // Update timestamp
@@ -102,7 +102,7 @@ namespace kaminari
         while (client->has_pending_super_packets() &&
             !cx::overflow::geq(client->first_super_packet_id(), expected_id))
         {
-            read_impl<Marshal, TimeBase>(client, super_packet);
+            read_impl<Marshal, TimeBase, interval>(client, super_packet);
         }
 
         // Flag for next block
@@ -135,7 +135,7 @@ namespace kaminari
         }
     }
     
-    template <typename Marshal, typename TimeBase, typename Queues>
+    template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
     void protocol::read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
         super_packet_reader reader = client->first_super_packet();
@@ -158,12 +158,8 @@ namespace kaminari
         }
 
         // Unordered packets are not to be parsed, as they contain outdated information
-        // in case that information was important, it would have already been resent
-        if (is_out_of_order(reader.id()))
-        {
-            // TODO(gpascualg): Log this, it should never happen
-            return;
-        }
+        // in case that information was important, it would have already been resent and not added
+        assert(!is_out_of_order(reader.id()) && "An out of order packet should never reach here");
 
         // Check how old the packet is wrt what we expect
         if (cx::overflow::sub(_expected_block_id, reader.id()) > max_blocks_until_resync())
@@ -179,7 +175,7 @@ namespace kaminari
 
         // Handle all inner packets
         _last_block_id_read = reader.id();
-        reader.handle_packets<Marshal>(client, this);
+        reader.handle_packets<Marshal, TimeBase, interval>(client, this);
     }
 
     inline bool protocol::is_out_of_order(uint16_t id)

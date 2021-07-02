@@ -37,6 +37,8 @@ namespace kaminari
         inline uint16_t expected_block_id() const noexcept;
 
         inline void set_timestamp(uint64_t timestamp, uint16_t block_id) noexcept;
+
+        template <typename TimeBase, uint64_t interval>
         inline uint64_t block_timestamp(uint16_t block_id) noexcept;
 
         inline uint16_t max_blocks_until_resync() const noexcept;
@@ -103,14 +105,17 @@ namespace kaminari
         _timestamp_block_id = block_id;
     }
 
+    template <typename TimeBase, uint64_t interval>
     inline uint64_t basic_protocol::block_timestamp(uint16_t block_id) noexcept
     {
+        const uint64_t converted_interval = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeBase(interval)).count();
+
         if (block_id >= _timestamp_block_id)
         {
-            return _timestamp + (block_id - _timestamp_block_id) * superpacket_interval;
+            return _timestamp + (block_id - _timestamp_block_id) * converted_interval;
         }
 
-        return _timestamp - (_timestamp_block_id - block_id) * superpacket_interval;
+        return _timestamp - (_timestamp_block_id - block_id) * converted_interval;
     }
 
     inline uint16_t basic_protocol::max_blocks_until_resync() const noexcept

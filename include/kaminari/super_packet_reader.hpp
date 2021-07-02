@@ -39,7 +39,7 @@ namespace kaminari
         inline bool has_data() const;
         inline bool is_ping_packet() const;
 
-        template <typename Marshal>
+        template <typename Marshal, typename TimeBase, uint64_t interval>
         void handle_packets(basic_client* client, basic_protocol* protocol);
 
 
@@ -111,7 +111,7 @@ namespace kaminari
         return !_has_acks && !has_data();
     }
 
-    template <typename Marshal>
+    template <typename Marshal, typename TimeBase, uint64_t interval>
     void super_packet_reader::handle_packets(basic_client* client, basic_protocol* protocol)
     {
         // Start reading old blocks
@@ -130,7 +130,7 @@ namespace kaminari
                 return;
             }
 
-            const uint64_t block_timestamp = protocol->block_timestamp(block_id);
+            const uint64_t block_timestamp = protocol->block_timestamp<TimeBase, interval>(block_id);
             block_pos += sizeof(uint16_t) + sizeof(uint8_t);
             remaining -= sizeof(uint16_t) + sizeof(uint8_t);
 

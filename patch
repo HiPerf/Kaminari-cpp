@@ -1,0 +1,137 @@
+diff --git a/include/kaminari/protocol/basic_protocol.hpp b/include/kaminari/protocol/basic_protocol.hpp
+index 3cead1a..94fb54b 100644
+--- a/include/kaminari/protocol/basic_protocol.hpp
++++ b/include/kaminari/protocol/basic_protocol.hpp
+@@ -37,6 +37,8 @@ namespace kaminari
+         inline uint16_t expected_block_id() const noexcept;
+ 
+         inline void set_timestamp(uint64_t timestamp, uint16_t block_id) noexcept;
++
++        template <typename TimeBase, uint64_t interval>
+         inline uint64_t block_timestamp(uint16_t block_id) noexcept;
+ 
+         inline uint16_t max_blocks_until_resync() const noexcept;
+@@ -103,14 +105,17 @@ namespace kaminari
+         _timestamp_block_id = block_id;
+     }
+ 
++    template <typename TimeBase, uint64_t interval>
+     inline uint64_t basic_protocol::block_timestamp(uint16_t block_id) noexcept
+     {
++        const uint64_t converted_interval = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeBase(interval)).count();
++
+         if (block_id >= _timestamp_block_id)
+         {
+-            return _timestamp + (block_id - _timestamp_block_id) * superpacket_interval;
++            return _timestamp + (block_id - _timestamp_block_id) * converted_interval;
+         }
+ 
+-        return _timestamp - (_timestamp_block_id - block_id) * superpacket_interval;
++        return _timestamp - (_timestamp_block_id - block_id) * converted_interval;
+     }
+ 
+     inline uint16_t basic_protocol::max_blocks_until_resync() const noexcept
+diff --git a/include/kaminari/protocol/protocol.hpp b/include/kaminari/protocol/protocol.hpp
+index be8d7e4..c1ab5d1 100644
+--- a/include/kaminari/protocol/protocol.hpp
++++ b/include/kaminari/protocol/protocol.hpp
+@@ -31,7 +31,7 @@ namespace kaminari
+         template <typename Queues>
+         bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+ 
+-        template <typename Marshal, typename TimeBase, typename Queues>
++        template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
+         bool read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+ 
+         template <typename TimeBase, typename Queues>
+@@ -40,7 +40,7 @@ namespace kaminari
+         inline bool is_out_of_order(uint16_t id);
+ 
+     private:
+-        template <typename Marshal, typename TimeBase, typename Queues>
++        template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
+         void read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+     };
+ 
+@@ -71,7 +71,7 @@ namespace kaminari
+         return false;
+     }
+ 
+-    template <typename Marshal, typename TimeBase, typename Queues>
++    template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
+     bool protocol::read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+     {
+         // Update timestamp
+@@ -102,7 +102,7 @@ namespace kaminari
+         while (client->has_pending_super_packets() &&
+             !cx::overflow::geq(client->first_super_packet_id(), expected_id))
+         {
+-            read_impl<Marshal, TimeBase>(client, super_packet);
++            read_impl<Marshal, TimeBase, interval>(client, super_packet);
+         }
+ 
+         // Flag for next block
+@@ -135,7 +135,7 @@ namespace kaminari
+         }
+     }
+     
+-    template <typename Marshal, typename TimeBase, typename Queues>
++    template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
+     void protocol::read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+     {
+         super_packet_reader reader = client->first_super_packet();
+@@ -158,12 +158,8 @@ namespace kaminari
+         }
+ 
+         // Unordered packets are not to be parsed, as they contain outdated information
+-        // in case that information was important, it would have already been resent
+-        if (is_out_of_order(reader.id()))
+-        {
+-            // TODO(gpascualg): Log this, it should never happen
+-            return;
+-        }
++        // in case that information was important, it would have already been resent and not added
++        assert(!is_out_of_order(reader.id()) && "An out of order packet should never reach here");
+ 
+         // Check how old the packet is wrt what we expect
+         if (cx::overflow::sub(_expected_block_id, reader.id()) > max_blocks_until_resync())
+@@ -179,7 +175,7 @@ namespace kaminari
+ 
+         // Handle all inner packets
+         _last_block_id_read = reader.id();
+-        reader.handle_packets<Marshal>(client, this);
++        reader.handle_packets<Marshal, TimeBase, interval>(client, this);
+     }
+ 
+     inline bool protocol::is_out_of_order(uint16_t id)
+diff --git a/include/kaminari/super_packet_reader.hpp b/include/kaminari/super_packet_reader.hpp
+index 0e8b252..6de9dfd 100644
+--- a/include/kaminari/super_packet_reader.hpp
++++ b/include/kaminari/super_packet_reader.hpp
+@@ -39,7 +39,7 @@ namespace kaminari
+         inline bool has_data() const;
+         inline bool is_ping_packet() const;
+ 
+-        template <typename Marshal>
++        template <typename Marshal, typename TimeBase, uint64_t interval>
+         void handle_packets(basic_client* client, basic_protocol* protocol);
+ 
+ 
+@@ -111,7 +111,7 @@ namespace kaminari
+         return !_has_acks && !has_data();
+     }
+ 
+-    template <typename Marshal>
++    template <typename Marshal, typename TimeBase, uint64_t interval>
+     void super_packet_reader::handle_packets(basic_client* client, basic_protocol* protocol)
+     {
+         // Start reading old blocks
+@@ -130,7 +130,7 @@ namespace kaminari
+                 return;
+             }
+ 
+-            const uint64_t block_timestamp = protocol->block_timestamp(block_id);
++            const uint64_t block_timestamp = protocol->block_timestamp<TimeBase, interval>(block_id);
+             block_pos += sizeof(uint16_t) + sizeof(uint8_t);
+             remaining -= sizeof(uint16_t) + sizeof(uint8_t);
+ 
