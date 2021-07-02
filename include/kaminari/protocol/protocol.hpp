@@ -114,6 +114,17 @@ namespace kaminari
     template <typename TimeBase, typename Queues>
     void protocol::handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
+        // Handle flags immediately
+        if (reader.has_flag(kaminari::super_packet_flags::handshake))
+        {
+            // Acks have no implication for us, but non-acks mean we have to ack
+            if (!reader.has_flag(kaminari::super_packet_flags::ack))
+            {
+                super_packet->set_flag(kaminari::super_packet_flags::ack);
+                super_packet->set_flag(kaminari::super_packet_flags::handshake);
+            }
+        }
+
         // Acknowledge user acks
         reader.handle_acks<TimeBase>(super_packet, this, client);
 
@@ -140,13 +151,6 @@ namespace kaminari
             _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
             _loop_counter = 0;
             _already_resolved.clear();
-
-            // Acks have no implication for us, but non-acks mean we have to ack
-            if (!reader.has_flag(kaminari::super_packet_flags::ack))
-            {
-                super_packet->set_flag(kaminari::super_packet_flags::ack);
-                super_packet->set_flag(kaminari::super_packet_flags::handshake);
-            }
             
             // Do nothing
             _last_block_id_read = reader.id();
