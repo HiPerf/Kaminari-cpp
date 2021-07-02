@@ -40,6 +40,9 @@ namespace kaminari
         inline bool is_out_of_order(uint16_t id);
 
     private:
+        template <typename Queues>
+        void increase_expected(::kaminari::super_packet<Queues>* super_packet);
+
         template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
         void read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
     };
@@ -81,7 +84,7 @@ namespace kaminari
         if (!client->has_pending_super_packets())
         {
             // Increment expected eiter way
-            _expected_block_id = cx::overflow::inc(_expected_block_id);
+            increase_expected(super_packet);
 
             if (++_since_last_recv > max_blocks_until_disconnection())
             {
@@ -106,7 +109,7 @@ namespace kaminari
         }
 
         // Flag for next block
-        _expected_block_id = cx::overflow::inc(_expected_block_id);
+        increase_expected(super_packet);
 
         return true;
     }
@@ -132,6 +135,15 @@ namespace kaminari
         if (reader.has_data() || reader.is_ping_packet())
         {
             super_packet->schedule_ack(reader.id());
+        }
+    }
+
+    template <typename Queues>
+    void protocol::increase_expected(::kaminari::super_packet<Queues>* super_packet)
+    {
+        if (!super_packet->has_flag(kaminari::super_packet_flags::handshake))
+        {
+            _expected_block_id = cx::overflow::inc(_expected_block_id);
         }
     }
     
