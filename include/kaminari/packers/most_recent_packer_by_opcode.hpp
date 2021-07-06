@@ -18,6 +18,7 @@ namespace kaminari
         uint16_t opcode;
     };
 
+    using most_recent_packer_by_opcode_allocator_t = detail::pending_data<packet_by_opcode>;
 
     template <class Marshal, class Allocator = std::allocator<detail::pending_data<packet_by_opcode>>>
     class most_recent_packer_by_opcode : public packer<most_recent_packer_by_opcode<Marshal, Allocator>, packet_by_opcode, Allocator>
@@ -42,7 +43,7 @@ namespace kaminari
         inline void clear();
 
     protected:
-        std::unordered_map<uint16_t, typename packer_t::pending_data*> _opcode_map;
+        std::unordered_map<uint16_t, typename detail::pending_data<packet_by_opcode>*> _opcode_map;
     };
 
 
@@ -83,12 +84,12 @@ namespace kaminari
     {
         for (auto& pending : packer_t::_pending)
         {
-            if (!is_pending(pending->blocks, block_id, false))
+            if (!packer_t::is_pending(pending->blocks, block_id, false))
             {
                 continue;
             }
 
-            uint16_t actual_block = get_actual_block(pending->blocks, block_id);
+            uint16_t actual_block = packer_t::get_actual_block(pending->blocks, block_id);
             uint16_t size = pending->data.packet->size();
             if (auto it = by_block.find(actual_block); it != by_block.end())
             {
