@@ -42,10 +42,12 @@ namespace kaminari
         template <typename Marshal, typename TimeBase, uint64_t interval>
         void handle_packets(basic_client* client, basic_protocol* protocol);
 
+    private:
+        template <typename TimeBase, typename Queues>
+        void handle_ack_impl(uint16_t ack, super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client);
 
     private:
         boost::intrusive_ptr<data_wrapper> _data;
-        const uint8_t* _ack_end;
         bool _has_acks;
     };
 
@@ -69,30 +71,43 @@ namespace kaminari
     template <typename TimeBase, typename Queues>
     void super_packet_reader::handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client)
     {
-        _ack_end = _data->data + sizeof(uint16_t) * 2 + sizeof(uint8_t);
-        uint8_t num_acks = *reinterpret_cast<const uint8_t*>(_ack_end);
-        _has_acks = num_acks != 0;
-        _ack_end += sizeof(uint8_t);
+        // TODO(gpascualg): Magic numbers
+        const uint8_t* ptr = _data->data + sizeof(uint16_t) * 2 + sizeof(uint8_t);
+        uint32_t acks = *reinterpret_cast<const uint8_t*>(ptr);
 
-        for (uint8_t i = 0; i < num_acks; ++i)
+        // Check previous IDs
+        for (uint8_t i = 0; i < 24; ++i)
         {
-            // Get ack and remove pending packets
-            uint16_t ack = *reinterpret_cast<const uint16_t*>(_ack_end);
-            super_packet->ack(ack);
-
-            // Compute lag estimation
-            auto sent_ts = protocol->super_packet_timestamp(ack);
-            if (sent_ts && cx::overflow::sub(super_packet->id(), ack) > protocol->max_blocks_until_resync())
+            if (acks & (1 << (32 - i)))
             {
-                auto diff = std::chrono::duration_cast<TimeBase>(std::chrono::steady_clock::now() - *sent_ts).count();
-                client->lag(static_cast<uint64_t>(
-                    static_cast<float>(client->lag()) * 0.9f +
-                    static_cast<float>(diff) / 2.0f * 0.1f)
-                );
+                handle_ack_impl<TimeBase>(id() - i, super_packet, protocol, client);
             }
+        }
 
-            // Advance to next
-            _ack_end += sizeof(uint16_t);
+        // Check next ids
+        for (uint8_t i = 0; i < 12; ++i)
+        {
+            if (acks & (1 << i))
+            {
+                handle_ack_impl<TimeBase>(id() + i, super_packet, protocol, client);
+            }
+        }
+    }
+
+    template <typename TimeBase, typename Queues>
+    void super_packet_reader::handle_ack_impl(uint16_t ack, super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client)
+    {
+        super_packet->ack(ack);
+        
+        // Compute lag estimation
+        auto sent_ts = protocol->super_packet_timestamp(ack);
+        if (sent_ts && cx::overflow::sub(super_packet->id(), ack) < protocol->max_blocks_until_resync())
+        {
+            auto diff = std::chrono::duration_cast<TimeBase>(std::chrono::steady_clock::now() - *sent_ts).count();
+            client->lag(static_cast<uint64_t>(
+                static_cast<float>(client->lag()) * 0.9f +
+                static_cast<float>(diff) / 2.0f * 0.1f)
+            );
         }
     }
 
@@ -103,7 +118,9 @@ namespace kaminari
 
     inline bool super_packet_reader::has_data() const
     {
-        return *reinterpret_cast<const uint8_t*>(_ack_end) != 0x0;
+        // TODO(gpascualg): Magic numbers
+        const uint8_t* ptr = _data->data + sizeof(uint16_t) * 2 + sizeof(uint8_t) + sizeof(uint32_t);
+        return *reinterpret_cast<const uint8_t*>(ptr) != 0x0;
     }
 
     inline bool super_packet_reader::is_ping_packet() const
@@ -115,8 +132,10 @@ namespace kaminari
     void super_packet_reader::handle_packets(basic_client* client, basic_protocol* protocol)
     {
         // Start reading old blocks
-        uint8_t num_blocks = *reinterpret_cast<const uint8_t*>(_ack_end);
-        const uint8_t* block_pos = _ack_end + sizeof(uint8_t);
+        // TODO(gpascualg): Magic numbers
+        const uint8_t* ptr = _data->data + sizeof(uint16_t) * 2 + sizeof(uint8_t) + sizeof(uint32_t);
+        uint8_t num_blocks = *reinterpret_cast<const uint8_t*>(ptr);
+        const uint8_t* block_pos = ptr + sizeof(uint8_t);
 
         // Set some upper limit to avoid exploits
         int remaining = _data->size - (block_pos - _data->data); // Keep it signed on purpouse

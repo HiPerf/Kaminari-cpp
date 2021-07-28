@@ -58,7 +58,7 @@ namespace kaminari
         uint8_t _flags;
 
         // Needs acks from client
-        std::vector<uint16_t> _pending_acks;
+        uint32_t _pending_acks;
         std::unordered_map<uint16_t, uint8_t> _clear_flags_on_ack;
         
         // Data array
@@ -93,7 +93,7 @@ namespace kaminari
         _id = 0;
         _flags = 0;
         Queues::reset();
-        _pending_acks.clear();
+        _pending_acks = 0;
     }
 
     template <typename Queues>
@@ -133,7 +133,23 @@ namespace kaminari
     template <typename Queues>
     void super_packet<Queues>::schedule_ack(uint16_t block_id)
     {
-        _pending_acks.push_back(block_id);
+        // Use a 32 bitset, where: 
+        //  - The first 0-24 bits are less than the superpacket id
+        //  - The next 25 bits are current and following
+        if (cx::overflow::ge(_id, block_id))
+        {
+            if (auto bit = cx::overflow::sub(_id, block_id); bit <= 24)
+            {
+                _pending_acks = _pending_acks | (1 << (sizeof(_pending_acks) - bit));
+            }
+        }
+        else
+        {
+            if (auto bit = cx::overflow::sub(block_id, _id); bit <= sizeof(_pending_acks) - 24)
+            {
+                _pending_acks = _pending_acks | (1 << bit);
+            }
+        }
     }
 
     template <typename Queues>
@@ -149,21 +165,11 @@ namespace kaminari
         *reinterpret_cast<uint8_t*>(ptr) = _flags;
         ptr += sizeof(uint8_t);
 
-        // Write acks
-        uint8_t ack_num = static_cast<uint8_t>(_pending_acks.size());
-        *reinterpret_cast<uint8_t*>(ptr) = ack_num;
-        ptr += sizeof(uint8_t);
-
-        bool has_acks = ack_num > 0;
-        if (has_acks)
-        {
-            uint16_t ack_size = static_cast<uint16_t>(ack_num * sizeof(uint16_t));
-            memcpy(ptr, &_pending_acks[0], ack_size);
-            ptr += ack_size;
-        }
-
-        // Clear all acks
-        _pending_acks.clear();
+        // Write acks and move for next id
+        // Moving acks bitset only happens if no doing handshake (ie. if incrementing id)
+        bool has_acks = _pending_acks > 0;
+        *reinterpret_cast<uint32_t*>(ptr) = _pending_acks;
+        ptr += sizeof(uint32_t);
 
         // How much packet is there left?
         //  -1 is to account for the number of blocks
@@ -230,8 +236,9 @@ namespace kaminari
                 }
             }
 
-            // Increment _id for next iter, only if not handshake
+            // Increment _id for next iter and acks
             _id = cx::overflow::inc(_id);
+            _pending_acks = _pending_acks << 1;
         }
 
         // Done, write length
