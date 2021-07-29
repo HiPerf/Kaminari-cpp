@@ -74,6 +74,8 @@ namespace kaminari
         const uint8_t* ptr = _data->data + super_packet_header_size;
         uint16_t ack_base = *reinterpret_cast<const uint16_t*>(ptr);
         uint32_t acks = *reinterpret_cast<const uint32_t*>(ptr + sizeof(uint16_t));
+        assert(ptr + sizeof(uint16_t) + sizeof(uint32_t) - _data->data == super_packet_header_size + super_packet_ack_size && "Mismatched ack size");
+
         _has_acks = acks > 0;
         if (!_has_acks)
         {
@@ -128,8 +130,7 @@ namespace kaminari
     void super_packet_reader::handle_packets(basic_client* client, basic_protocol* protocol)
     {
         // Start reading old blocks
-        // TODO(gpascualg): Magic numbers
-        const uint8_t* ptr = _data->data + sizeof(uint16_t) * 2 + sizeof(uint8_t) + sizeof(uint32_t);
+        const uint8_t* ptr = _data->data + super_packet_header_size + super_packet_ack_size;
         uint8_t num_blocks = *reinterpret_cast<const uint8_t*>(ptr);
         const uint8_t* block_pos = ptr + sizeof(uint8_t);
 
