@@ -118,7 +118,8 @@ namespace kaminari
     void protocol::handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
         // Handle flags immediately
-        if (reader.has_flag(kaminari::super_packet_flags::handshake))
+        bool is_handshake = reader.has_flag(kaminari::super_packet_flags::handshake);
+        if (is_handshake)
         {
             // Acks have no implication for us, but non-acks mean we have to ack
             if (!reader.has_flag(kaminari::super_packet_flags::ack))
@@ -132,7 +133,7 @@ namespace kaminari
         reader.handle_acks<TimeBase>(super_packet, this, client);
 
         // Let's add it to pending acks
-        if (reader.has_data() || reader.is_ping_packet())
+        if (is_handshake || reader.has_data() || reader.is_ping_packet())
         {
             super_packet->schedule_ack(reader.id());
         }

@@ -23,6 +23,9 @@ namespace kaminari
         all =           0xFF
     };
 
+    inline constexpr uint32_t super_packet_header_size = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint8_t);
+    inline constexpr uint32_t super_packet_ack_size = sizeof(uint16_t) + sizeof(uint32_t);
+
     template <typename Queues>
     class super_packet : public Queues
     {
@@ -58,6 +61,7 @@ namespace kaminari
         uint8_t _flags;
 
         // Needs acks from client
+        uint16_t _ack_base;
         uint32_t _pending_acks;
         std::unordered_map<uint16_t, uint8_t> _clear_flags_on_ack;
         
@@ -84,7 +88,9 @@ namespace kaminari
     super_packet<Queues>::super_packet(uint8_t resend_threshold, Args&&... args) :
         Queues(resend_threshold, std::forward<Args>(args)...),
         _id(0),
-        _flags(0)
+        _flags(0),
+        _ack_base(0),
+        _pending_acks(0)
     {}
 
     template <typename Queues>
@@ -93,6 +99,7 @@ namespace kaminari
         _id = 0;
         _flags = 0;
         Queues::reset();
+        _ack_base = 0;
         _pending_acks = 0;
     }
 
@@ -105,6 +112,7 @@ namespace kaminari
         if (auto it = _clear_flags_on_ack.find(block_id); it != _clear_flags_on_ack.end())
         {
             _flags = _flags & (~it->second);
+            _clear_flags_on_ack.erase(it);
         }
     }
 
@@ -133,22 +141,17 @@ namespace kaminari
     template <typename Queues>
     void super_packet<Queues>::schedule_ack(uint16_t block_id)
     {
-        // Use a 32 bitset, where: 
-        //  - The first 0-24 bits are less than the superpacket id
-        //  - The next 25 bits are current and following
-        if (cx::overflow::ge(_id, block_id))
+        // Move pending acks
+        if (cx::overflow::ge(block_id, _ack_base))
         {
-            if (auto bit = cx::overflow::sub(_id, block_id); bit <= 24)
-            {
-                _pending_acks = _pending_acks | (1 << (sizeof(_pending_acks) - bit));
-            }
+            uint16_t ack_diff = cx::overflow::sub(block_id, _ack_base);
+            _pending_acks = (_pending_acks << ack_diff) | 1; // | 1 because we are acking the base
+            _ack_base = block_id;
         }
         else
         {
-            if (auto bit = cx::overflow::sub(block_id, _id); bit <= sizeof(_pending_acks) - 24)
-            {
-                _pending_acks = _pending_acks | (1 << bit);
-            }
+            uint16_t ack_diff = cx::overflow::sub(_ack_base, block_id);
+            _pending_acks = _pending_acks | (1 << ack_diff);
         }
     }
 
@@ -165,11 +168,18 @@ namespace kaminari
         *reinterpret_cast<uint8_t*>(ptr) = _flags;
         ptr += sizeof(uint8_t);
 
+        // Make sure
+        assert((ptr - _data) == super_packet_header_size && "Header size does not match");
+
         // Write acks and move for next id
         // Moving acks bitset only happens if no doing handshake (ie. if incrementing id)
         bool has_acks = _pending_acks > 0;
+        *reinterpret_cast<uint16_t*>(ptr) = _ack_base;
+        ptr += sizeof(uint16_t);
         *reinterpret_cast<uint32_t*>(ptr) = _pending_acks;
         ptr += sizeof(uint32_t);
+
+        assert((ptr - _data) == super_packet_header_size + super_packet_ack_size && "Ack size does not match");
 
         // How much packet is there left?
         //  -1 is to account for the number of blocks
@@ -238,7 +248,6 @@ namespace kaminari
 
             // Increment _id for next iter and acks
             _id = cx::overflow::inc(_id);
-            _pending_acks = _pending_acks << 1;
         }
 
         // Done, write length

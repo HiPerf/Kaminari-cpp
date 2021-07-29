@@ -71,26 +71,21 @@ namespace kaminari
     template <typename TimeBase, typename Queues>
     void super_packet_reader::handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client)
     {
-        // TODO(gpascualg): Magic numbers
-        const uint8_t* ptr = _data->data + sizeof(uint16_t) * 2 + sizeof(uint8_t);
-        uint32_t acks = *reinterpret_cast<const uint8_t*>(ptr);
+        const uint8_t* ptr = _data->data + super_packet_header_size;
+        uint16_t ack_base = *reinterpret_cast<const uint16_t*>(ptr);
+        uint32_t acks = *reinterpret_cast<const uint32_t*>(ptr + sizeof(uint16_t));
         _has_acks = acks > 0;
+        if (!_has_acks)
+        {
+            return;
+        }
         
         // Check previous IDs
-        for (uint8_t i = 0; i < 24; ++i)
-        {
-            if (acks & (1 << (32 - i)))
-            {
-                handle_ack_impl<TimeBase>(id() - i, super_packet, protocol, client);
-            }
-        }
-
-        // Check next ids
-        for (uint8_t i = 0; i < 12; ++i)
+        for (uint8_t i = 0; i < 32; ++i)
         {
             if (acks & (1 << i))
             {
-                handle_ack_impl<TimeBase>(id() + i, super_packet, protocol, client);
+                handle_ack_impl<TimeBase>(ack_base - i, super_packet, protocol, client);
             }
         }
     }

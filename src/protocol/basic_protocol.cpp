@@ -86,7 +86,7 @@ namespace kaminari
         {
             auto ts = it->second;
             _send_timestamps.erase(block_id);
-            return std::move(ts);
+            return ts;
         }
 
         return std::nullopt;
