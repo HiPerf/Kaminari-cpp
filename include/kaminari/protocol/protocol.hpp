@@ -57,14 +57,14 @@ namespace kaminari
     bool protocol::update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
         bool needs_ping = basic_protocol::update();
-
-        if (super_packet->finish() || needs_ping)
+        if (needs_ping)
         {
-            if (needs_ping)
-            {
-                scheduled_ping();
-            }
+            super_packet->set_flag(kaminari::super_packet_flags::ping);
+            scheduled_ping();
+        }
 
+        if (super_packet->finish())
+        {
             _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
             return true;
         }

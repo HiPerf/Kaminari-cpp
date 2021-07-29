@@ -30,7 +30,7 @@ namespace kaminari
 
         inline uint16_t length() const;
         inline uint16_t id() const;
-        inline bool has_flag(super_packet_flags flag);
+        inline bool has_flag(super_packet_flags flag) const;
 
         template <typename TimeBase, typename Queues>
         void handle_acks(super_packet<Queues>* super_packet, basic_protocol* protocol, basic_client* client);
@@ -48,7 +48,6 @@ namespace kaminari
 
     private:
         boost::intrusive_ptr<data_wrapper> _data;
-        bool _has_acks;
     };
 
 
@@ -62,7 +61,7 @@ namespace kaminari
         return *reinterpret_cast<const uint16_t*>(_data->data + sizeof(uint16_t));
     }
 
-    inline bool super_packet_reader::has_flag(super_packet_flags flag)
+    inline bool super_packet_reader::has_flag(super_packet_flags flag) const
     {
         auto flags = *reinterpret_cast<const uint8_t*>(_data->data + sizeof(uint16_t) * 2);
         return flags & (uint8_t)flag;
@@ -76,8 +75,8 @@ namespace kaminari
         uint32_t acks = *reinterpret_cast<const uint32_t*>(ptr + sizeof(uint16_t));
         assert(ptr + sizeof(uint16_t) + sizeof(uint32_t) - _data->data == super_packet_header_size + super_packet_ack_size && "Mismatched ack size");
 
-        _has_acks = acks > 0;
-        if (!_has_acks)
+        // Skip if there are none
+        if (acks == 0)
         {
             return;
         }
@@ -103,8 +102,8 @@ namespace kaminari
         {
             auto diff = std::chrono::duration_cast<TimeBase>(std::chrono::steady_clock::now() - *sent_ts).count();
             client->lag(static_cast<uint64_t>(
-                static_cast<float>(client->lag()) * 0.9f +
-                static_cast<float>(diff) / 2.0f * 0.1f)
+                static_cast<float>(client->lag()) * 0.99f +
+                static_cast<float>(diff) / 2.0f * 0.01f)
             );
         }
     }
@@ -123,7 +122,7 @@ namespace kaminari
 
     inline bool super_packet_reader::is_ping_packet() const
     {
-        return !_has_acks && !has_data();
+        return has_flag(super_packet_flags::ping) && !has_flag(super_packet_flags::ack);
     }
 
     template <typename Marshal, typename TimeBase, uint64_t interval>

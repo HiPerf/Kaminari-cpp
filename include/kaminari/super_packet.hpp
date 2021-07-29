@@ -19,6 +19,7 @@ namespace kaminari
     {
         none =          0x00,
         handshake =     0x01,
+        ping =          0x02,
         ack =           0x80,
         all =           0xFF
     };
@@ -63,6 +64,7 @@ namespace kaminari
         // Needs acks from client
         uint16_t _ack_base;
         uint32_t _pending_acks;
+        bool _must_ack;
         std::unordered_map<uint16_t, uint8_t> _clear_flags_on_ack;
         
         // Data array
@@ -90,7 +92,8 @@ namespace kaminari
         _id(0),
         _flags(0),
         _ack_base(0),
-        _pending_acks(0)
+        _pending_acks(0),
+        _must_ack(false)
     {}
 
     template <typename Queues>
@@ -101,6 +104,7 @@ namespace kaminari
         Queues::reset();
         _ack_base = 0;
         _pending_acks = 0;
+        _must_ack = 0;
     }
 
     template <typename Queues>
@@ -153,6 +157,8 @@ namespace kaminari
             uint16_t ack_diff = cx::overflow::sub(_ack_base, block_id);
             _pending_acks = _pending_acks | (1 << ack_diff);
         }
+
+        _must_ack = true;
     }
 
     template <typename Queues>
@@ -171,9 +177,12 @@ namespace kaminari
         // Make sure
         assert((ptr - _data) == super_packet_header_size && "Header size does not match");
 
+        // Reset if there is something we must ack
+        bool has_acks = _must_ack;
+        _must_ack = false;
+
         // Write acks and move for next id
         // Moving acks bitset only happens if no doing handshake (ie. if incrementing id)
-        bool has_acks = _pending_acks > 0;
         *reinterpret_cast<uint16_t*>(ptr) = _ack_base;
         ptr += sizeof(uint16_t);
         *reinterpret_cast<uint32_t*>(ptr) = _pending_acks;
