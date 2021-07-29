@@ -74,7 +74,8 @@ namespace kaminari
         // TODO(gpascualg): Magic numbers
         const uint8_t* ptr = _data->data + sizeof(uint16_t) * 2 + sizeof(uint8_t);
         uint32_t acks = *reinterpret_cast<const uint8_t*>(ptr);
-
+        _has_acks = acks > 0;
+        
         // Check previous IDs
         for (uint8_t i = 0; i < 24; ++i)
         {
