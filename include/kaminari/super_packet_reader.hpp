@@ -39,8 +39,8 @@ namespace kaminari
         inline bool has_data() const;
         inline bool is_ping_packet() const;
 
-        template <typename Marshal, typename TimeBase, uint64_t interval>
-        void handle_packets(basic_client* client, basic_protocol* protocol);
+        template <typename TimeBase, uint64_t interval, typename Marshal>
+        void handle_packets(basic_client* client, Marshal& marshal, basic_protocol* protocol);
 
     private:
         template <typename TimeBase, typename Queues>
@@ -125,8 +125,8 @@ namespace kaminari
         return has_flag(super_packet_flags::ping) && !has_flag(super_packet_flags::ack);
     }
 
-    template <typename Marshal, typename TimeBase, uint64_t interval>
-    void super_packet_reader::handle_packets(basic_client* client, basic_protocol* protocol)
+    template <typename TimeBase, uint64_t interval, typename Marshal>
+    void super_packet_reader::handle_packets(basic_client* client, Marshal& marshal, basic_protocol* protocol)
     {
         // Start reading old blocks
         const uint8_t* ptr = _data->data + super_packet_header_size + super_packet_ack_size;
@@ -164,7 +164,7 @@ namespace kaminari
 
                 if (protocol->resolve(client, &reader, block_id))
                 {
-                    Marshal::handle_packet(&reader, client);
+                    marshal.handle_packet(client, &reader, block_id);
                 }
             }
         }

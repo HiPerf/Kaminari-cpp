@@ -31,8 +31,8 @@ namespace kaminari
         template <typename Queues>
         bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
 
-        template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
-        bool read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+        template <typename TimeBase, uint64_t interval, typename Marshal, typename Queues>
+        bool read(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet);
 
         template <typename TimeBase, typename Queues>
         void handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
@@ -43,8 +43,8 @@ namespace kaminari
         template <typename Queues>
         void increase_expected(::kaminari::super_packet<Queues>* super_packet);
 
-        template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
-        void read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+        template <typename TimeBase, uint64_t interval, typename Marshal, typename Queues>
+        void read_impl(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet);
     };
 
     template <typename Queues>
@@ -74,8 +74,8 @@ namespace kaminari
         return false;
     }
 
-    template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
-    bool protocol::read(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+    template <typename TimeBase, uint64_t interval, typename Marshal, typename Queues>
+    bool protocol::read(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet)
     {
         // Update timestamp
         _timestamp_block_id = _expected_block_id;
@@ -105,7 +105,7 @@ namespace kaminari
         while (client->has_pending_super_packets() &&
             !cx::overflow::geq(client->first_super_packet_id(), expected_id))
         {
-            read_impl<Marshal, TimeBase, interval>(client, super_packet);
+            read_impl<TimeBase, interval>(client, marshal, super_packet);
         }
 
         // Flag for next block
@@ -148,8 +148,8 @@ namespace kaminari
         }
     }
     
-    template <typename Marshal, typename TimeBase, uint64_t interval, typename Queues>
-    void protocol::read_impl(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+    template <typename TimeBase, uint64_t interval, typename Marshal, typename Queues>
+    void protocol::read_impl(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet)
     {
         super_packet_reader reader = client->first_super_packet();
 		
@@ -188,7 +188,10 @@ namespace kaminari
 
         // Handle all inner packets
         _last_block_id_read = reader.id();
-        reader.handle_packets<Marshal, TimeBase, interval>(client, this);
+        reader.handle_packets<TimeBase, interval>(client, marshal, this);
+
+        // Now update marshal if it has too
+        marshal.update(_last_block_id_read);
     }
 
     inline bool protocol::is_out_of_order(uint16_t id)
