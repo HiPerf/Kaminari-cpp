@@ -19,6 +19,21 @@ namespace kaminari
         class packet_reader;
     }
 
+#if defined __has_include
+    #if __has_include(<kumo/marshal.hpp>)
+        constexpr inline bool use_kumo_buffers = true;
+    #else
+        constexpr inline bool use_kumo_buffers = false;
+    #endif
+#else
+    #pragma warning "Your compiler does not support __has_include, define USE_KUMO_BUFFERS to override default behaviour"
+    #if defined USE_KUMO_BUFFERS
+        constexpr inline bool use_kumo_buffers = true;
+    #else
+        constexpr inline bool use_kumo_buffers = false;
+    #endif
+#endif
+
 
     class protocol : public basic_protocol
     {
@@ -48,7 +63,7 @@ namespace kaminari
     };
 
     template <typename Queues>
-    bool initiate_handshake(::kaminari::super_packet<Queues>* super_packet)
+    bool protocol::initiate_handshake(::kaminari::super_packet<Queues>* super_packet)
     {
         super_packet->set_flag(::kaminari::super_packet_flags::handshake);
     }
@@ -98,8 +113,12 @@ namespace kaminari
         // There is something, whatever, so we've recv
         _since_last_recv = 0;
 
-        // Should we buffer?
-        uint16_t expected_id = cx::overflow::sub(_expected_block_id, static_cast<uint16_t>(_buffer_size));
+        // When using kumo we are not buffering here, otherwise do so
+        uint16_t expected_id = _expected_block_id;
+        if constexpr (!use_kumo_buffers)
+        {
+            expected_id = cx::overflow::sub(_expected_block_id, static_cast<uint16_t>(_buffer_size));
+        }
 
         // Keep reading superpackets until we reach the currently expected
         while (client->has_pending_super_packets() &&
@@ -191,11 +210,19 @@ namespace kaminari
         reader.handle_packets<TimeBase, interval>(client, marshal, this);
 
         // Now update marshal if it has too
-        marshal.update(_last_block_id_read);
+        marshal.update(client, _last_block_id_read);
     }
 
     inline bool protocol::is_out_of_order(uint16_t id)
     {
-        return cx::overflow::le(id, _last_block_id_read);
+        if constexpr (use_kumo_buffers)
+        {
+            return cx::overflow::leq(id, _expected_block_id) && 
+                cx::overflow::ge(id, cx::overflow::sub(_expected_block_id, static_cast<uint16_t>(_buffer_size)));
+        }
+        else
+        {
+            return cx::overflow::le(id, _last_block_id_read);
+        }
     }
 }
