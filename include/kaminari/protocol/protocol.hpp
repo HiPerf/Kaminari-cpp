@@ -107,6 +107,8 @@ namespace kaminari
                 return false;
             }
 
+            // Update marshal just in case
+            marshal.update(client, _expected_block_id);
             return false;
         }
 
@@ -129,6 +131,9 @@ namespace kaminari
 
         // Flag for next block
         increase_expected(super_packet);
+
+        // Now update marshal if it has too
+        marshal.update(client, _expected_block_id);
 
         return true;
     }
@@ -208,9 +213,6 @@ namespace kaminari
         // Handle all inner packets
         _last_block_id_read = reader.id();
         reader.handle_packets<TimeBase, interval>(client, marshal, this);
-
-        // Now update marshal if it has too
-        marshal.update(client, _last_block_id_read);
     }
 
     inline bool protocol::is_out_of_order(uint16_t id)
