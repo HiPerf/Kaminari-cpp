@@ -124,7 +124,7 @@ namespace kaminari
 
         // Keep reading superpackets until we reach the currently expected
         while (client->has_pending_super_packets() &&
-            !cx::overflow::geq(client->first_super_packet_id(), expected_id))
+            !cx::overflow::ge(client->first_super_packet_id(), expected_id))
         {
             read_impl<TimeBase, interval>(client, marshal, super_packet);
         }
@@ -219,8 +219,7 @@ namespace kaminari
     {
         if constexpr (use_kumo_buffers)
         {
-            return cx::overflow::leq(id, _expected_block_id) && 
-                cx::overflow::ge(id, cx::overflow::sub(_expected_block_id, static_cast<uint16_t>(_buffer_size)));
+            return cx::overflow::le(id, cx::overflow::sub(_last_block_id_read, static_cast<uint16_t>(_buffer_size)));
         }
         else
         {

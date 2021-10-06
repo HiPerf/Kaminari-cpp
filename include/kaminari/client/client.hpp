@@ -4,7 +4,6 @@
 #include <kaminari/protocol/protocol.hpp>
 #include <kaminari/client/basic_client.hpp>
 
-
 namespace kaminari
 {
     template <typename Queues>
