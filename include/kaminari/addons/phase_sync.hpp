@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kaminari/addons/server_based_phase_sync.hpp>
+#include <kaminari/addons/peer_based_phase_sync.hpp>
 
 #include <function2/function2.hpp>
 
@@ -55,9 +55,6 @@ namespace kaminari
         float _adjusted_integrator;
         uint16_t _last_processed_packet;
 
-        bool _running;
-        std::thread _thread;
-
         std::mutex _mutex;
         std::vector<fu2::unique_function<void()>> _oneshot_early;
         std::vector<fu2::unique_function<void()>> _oneshot;
@@ -65,6 +62,9 @@ namespace kaminari
         std::vector<fu2::unique_function<void()>> _recurrent_early;
         std::vector<fu2::unique_function<void()>> _recurrent;
         std::vector<fu2::unique_function<void()>> _recurrent_late;
+
+        bool _running;
+        std::thread _thread;
     };
 
     template <chrono_duration base_time, uint64_t expected_tick_rate>
@@ -74,6 +74,7 @@ namespace kaminari
         _integrator(expected_tick_rate),
         _adjusted_integrator(expected_tick_rate),
         _last_processed_packet(0),
+        _mutex(),
         _running(true),
         _thread(&phase_sync<base_time, expected_tick_rate>::start, this)
     {}
@@ -85,8 +86,7 @@ namespace kaminari
         _integrator(other._integrator),
         _adjusted_integrator(other._adjusted_integrator),
         _last_processed_packet(other._last_processed_packet),
-        _running(other._running),
-        _thread(std::move(other._thread))
+        _running(other._running)
     {
         std::lock_guard lk1(other._mutex);
         std::lock_guard lk2(_mutex);
@@ -97,6 +97,9 @@ namespace kaminari
         _recurrent_early = std::move(other._recurrent_early);
         _recurrent = std::move(other._recurrent);
         _recurrent_late = std::move(other._recurrent_late);
+
+        // Move thread last
+        _thread = std::move(other._thread);
     }
 
     template <chrono_duration base_time, uint64_t expected_tick_rate>
@@ -108,7 +111,6 @@ namespace kaminari
         _adjusted_integrator = other._adjusted_integrator;
         _last_processed_packet = other._last_processed_packet;
         _running = other._running;
-        _thread = std::move(other._thread);
 
         std::lock_guard lk1(other._mutex);
         std::lock_guard lk2(_mutex);
@@ -118,6 +120,9 @@ namespace kaminari
         _recurrent_early = std::move(other._recurrent_early);
         _recurrent = std::move(other._recurrent);
         _recurrent_late = std::move(other._recurrent_late);
+
+        // Move thread last
+        _thread = std::move(other._thread);
 
         return *this;
     }
@@ -150,9 +155,9 @@ namespace kaminari
         // NCO
         _next_tick = time + base_time((uint64_t)_integrator);
 
-        if constexpr (C::template has_stateful_callback<server_based_phase_sync>())
+        if constexpr (C::template has_stateful_callback<peer_based_phase_sync>())
         {
-            _adjusted_integrator = _integrator + ((server_based_phase_sync*)client)->superpackets_id_diff();
+            _adjusted_integrator = _integrator + ((peer_based_phase_sync*)client)->superpackets_id_diff();
         }
         else
         {
