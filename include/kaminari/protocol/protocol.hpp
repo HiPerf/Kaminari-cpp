@@ -41,7 +41,7 @@ namespace kaminari
         using basic_protocol::basic_protocol;
 
         template <typename Queues>
-        bool initiate_handshake(::kaminari::super_packet<Queues>* super_packet);
+        void initiate_handshake(::kaminari::super_packet<Queues>* super_packet);
 
         template <typename Queues>
         bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
@@ -63,7 +63,7 @@ namespace kaminari
     };
 
     template <typename Queues>
-    bool protocol::initiate_handshake(::kaminari::super_packet<Queues>* super_packet)
+    void protocol::initiate_handshake(::kaminari::super_packet<Queues>* super_packet)
     {
         super_packet->set_flag(::kaminari::super_packet_flags::handshake);
         super_packet->set_internal_flag(::kaminari::super_packet_internal_flags::wait_first);
@@ -82,7 +82,7 @@ namespace kaminari
         if (super_packet->finish())
         {
             if (!super_packet->has_flag(kaminari::super_packet_flags::handshake) && 
-                !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first)
+                !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first))
             {
                 _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
             }
@@ -177,7 +177,7 @@ namespace kaminari
     void protocol::increase_expected(::kaminari::super_packet<Queues>* super_packet)
     {
         if (!super_packet->has_flag(kaminari::super_packet_flags::handshake) && 
-            !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first)
+            !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first))
         {
             _expected_block_id = cx::overflow::inc(_expected_block_id);
         }
