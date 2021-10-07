@@ -35,7 +35,7 @@ if (NOT KAMINARI_DISABLE_ADDONS)
         ${KAMINARI_SOURCES}
         ../include/kaminari/addons/phase_sync.hpp
         ../include/kaminari/addons/server_based_phase_sync.hpp
-        addons/server_based_phase_sync.hpp
+        addons/server_based_phase_sync.cpp
     )
 endif()
 
