@@ -97,14 +97,18 @@ namespace kaminari
         super_packet->ack(ack);
         
         // Compute lag estimation
-        auto sent_ts = protocol->super_packet_timestamp(ack);
-        if (sent_ts && cx::overflow::sub(super_packet->id(), ack) < protocol->max_blocks_until_resync())
+        if (!super_packet->has_flag(kaminari::super_packet_flags::handshake) &&
+            !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first))
         {
-            auto diff = std::chrono::duration_cast<TimeBase>(std::chrono::steady_clock::now() - *sent_ts).count();
-            client->lag(static_cast<uint64_t>(
-                static_cast<float>(client->lag()) * 0.99f +
-                static_cast<float>(diff) / 2.0f * 0.01f)
-            );
+            auto sent_ts = protocol->super_packet_timestamp(ack);
+            if (sent_ts && cx::overflow::sub(super_packet->id(), ack) < protocol->max_blocks_until_resync())
+            {
+                auto diff = std::chrono::duration_cast<TimeBase>(std::chrono::steady_clock::now() - *sent_ts).count();
+                client->lag(static_cast<uint64_t>(
+                    static_cast<float>(client->lag()) * 0.99f +
+                    static_cast<float>(diff) / 2.0f * 0.01f)
+                );
+            }
         }
     }
 

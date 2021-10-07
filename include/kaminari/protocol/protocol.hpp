@@ -66,6 +66,7 @@ namespace kaminari
     bool protocol::initiate_handshake(::kaminari::super_packet<Queues>* super_packet)
     {
         super_packet->set_flag(::kaminari::super_packet_flags::handshake);
+        super_packet->set_internal_flag(::kaminari::super_packet_internal_flags::wait_first);
     }
 
     template <typename Queues>
@@ -80,7 +81,12 @@ namespace kaminari
 
         if (super_packet->finish())
         {
-            _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
+            if (!super_packet->has_flag(kaminari::super_packet_flags::handshake) && 
+                !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first)
+            {
+                _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
+            }
+
             return true;
         }
 
@@ -152,6 +158,10 @@ namespace kaminari
                 super_packet->set_flag(kaminari::super_packet_flags::handshake);
             }
         }
+        else
+        {
+            super_packet->clear_internal_flag(kaminari::super_packet_internal_flags::wait_first);
+        }
 
         // Acknowledge user acks
         reader.handle_acks<TimeBase>(super_packet, this, client);
@@ -166,7 +176,8 @@ namespace kaminari
     template <typename Queues>
     void protocol::increase_expected(::kaminari::super_packet<Queues>* super_packet)
     {
-        if (!super_packet->has_flag(kaminari::super_packet_flags::handshake))
+        if (!super_packet->has_flag(kaminari::super_packet_flags::handshake) && 
+            !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first)
         {
             _expected_block_id = cx::overflow::inc(_expected_block_id);
         }
@@ -201,6 +212,7 @@ namespace kaminari
         // Check how old the packet is wrt what we expect
         if (cx::overflow::sub(_expected_block_id, reader.id()) > max_blocks_until_resync())
         {
+            initiate_handshake(super_packet);
             client->flag_desync();
         }
 
