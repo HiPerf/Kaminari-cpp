@@ -5,6 +5,7 @@
 #include <kaminari/client/basic_client.hpp>
 
 #include <type_traits>
+#include <concepts>
 
 
 namespace kaminari
