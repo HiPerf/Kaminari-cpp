@@ -24,6 +24,13 @@ namespace kaminari
         all =           0xFF
     };
 
+    enum class super_packet_internal_flags
+    {
+        none =          0x00,
+        wait_first =    0x01,
+        all =           0xFF
+    };
+
     inline constexpr uint32_t super_packet_header_size = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint8_t);
     inline constexpr uint32_t super_packet_ack_size = sizeof(uint16_t) + sizeof(uint32_t);
 
@@ -43,7 +50,11 @@ namespace kaminari
         void reset();
 
         void set_flag(super_packet_flags flag);
-        bool has_flag(super_packet_flags flag);
+        bool has_flag(super_packet_flags flag) const;
+
+        void set_internal_flag(super_packet_internal_flags flag);
+        bool has_internal_flag(super_packet_internal_flags flag) const;
+        void clear_internal_flag(super_packet_internal_flags flag);
 
         // Player has acked a packet
         void ack(uint16_t block_id);
@@ -60,6 +71,7 @@ namespace kaminari
     private:
         uint16_t _id;
         uint8_t _flags;
+        uint8_t _internal_flags;
 
         // Needs acks from client
         uint16_t _ack_base;
@@ -137,9 +149,27 @@ namespace kaminari
     }
     
     template <typename Queues>
-    bool super_packet<Queues>::has_flag(super_packet_flags flag)
+    bool super_packet<Queues>::has_flag(super_packet_flags flag) const
     {
         return _flags & (uint8_t)flag;
+    }
+
+    template <typename Queues>
+    void super_packet<Queues>::set_internal_flag(super_packet_internal_flags flag)
+    {
+        _internal_flags = _internal_flags | (uint8_t)flag;
+    }
+
+    template <typename Queues>
+    bool super_packet<Queues>::has_internal_flag(super_packet_internal_flags flag) const
+    {
+        return _internal_flags & (uint8_t)flag;
+    }
+
+    template <typename Queues>
+    void super_packet<Queues>::clear_internal_flag(super_packet_internal_flags flag)
+    {
+        _internal_flags = _internal_flags & (~(uint8_t)flag);
     }
 
     template <typename Queues>
