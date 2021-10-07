@@ -6,8 +6,9 @@ endif()
 
 project(Kaminari VERSION 0.1 LANGUAGES CXX)
 
-option(Boost_USE_STATIC_LIBS "Use Boost static libs"    ON)
+option(Boost_USE_STATIC_LIBS    "Use Boost static libs"     ON)
 set(BOOST_VERSION "1.73" CACHE STRING "Boost version")
+option(KAMINARI_DISABLE_ADDONS  "Disable optional addons"   OFF)
 
 add_subdirectory(src)
 add_subdirectory(dep)

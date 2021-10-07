@@ -35,6 +35,8 @@ namespace kaminari
 
         inline uint16_t last_block_id_read() const noexcept;
         inline uint16_t expected_block_id() const noexcept;
+       
+        inline void override_expected_block_id(uint16_t value) noexcept;
 
         inline void set_timestamp(uint64_t timestamp, uint16_t block_id) noexcept;
 
@@ -97,6 +99,11 @@ namespace kaminari
     inline uint16_t basic_protocol::expected_block_id() const noexcept
     { 
         return _expected_block_id; 
+    }
+
+    inline void basic_protocol::override_expected_block_id(uint16_t value) noexcept
+    {
+        _expected_block_id = value;
     }
 
     inline void basic_protocol::set_timestamp(uint64_t timestamp, uint16_t block_id) noexcept

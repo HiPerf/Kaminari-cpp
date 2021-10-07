@@ -1,4 +1,4 @@
-add_library(kaminari STATIC 
+set(KAMINARI_SOURCES
     ../include/kaminari/buffers/packet.hpp
     ../include/kaminari/buffers/packet_reader.hpp
     buffers/packet.cpp
@@ -27,7 +27,18 @@ add_library(kaminari STATIC
     ../include/kaminari/broadcaster.hpp
     ../include/kaminari/super_packet.hpp
     ../include/kaminari/super_packet_reader.hpp
-    super_packet_reader.cpp)
+    super_packet_reader.cpp
+)
+
+if (NOT KAMINARI_DISABLE_ADDONS)
+    set(KAMINARI_SOURCES
+        ${KAMINARI_SOURCES}
+        ../include/kaminari/addons/phase_sync.hpp
+        ../include/kaminari/addons/server_based_phase_sync.hpp
+    )
+endif()
+
+add_library(kaminari STATIC ${KAMINARI_SOURCES})
 
 target_compile_features(kaminari PUBLIC cxx_std_20)
 target_include_directories(kaminari PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)
