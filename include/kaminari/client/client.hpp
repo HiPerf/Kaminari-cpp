@@ -12,11 +12,11 @@ namespace kaminari
     template <typename T>
     concept has_receive_callback = requires(T t)
     {
-        { t.on_receive_packet(nullptr, std::declval<uint16_t>()) };
+        { t.on_receive_packet((void*)nullptr, std::declval<uint16_t>()) };
     };
 
     template <typename T>
-    concept stateful_callback = std::is_trivially_move_constructible_v<T> &&
+    concept stateful_callback = std::is_constructible_v<T> && std::is_move_constructible_v<T> &&
         has_receive_callback<T>;
 
     template <typename Queues, stateful_callback... StatefulCallbacks>
@@ -35,7 +35,7 @@ namespace kaminari
         inline kaminari::protocol* protocol();
 
         template <typename T>
-        inline constexpr bool has_stateful_callback() const;
+        static constexpr bool has_stateful_callback();
 
     protected:
         kaminari::super_packet<Queues> _super_packet;
@@ -45,14 +45,14 @@ namespace kaminari
 
     template <typename Queues, stateful_callback... StatefulCallbacks>
     template <typename... Args>
-    client<Queues, StatefulCallbacks>::client(uint8_t resend_threshold, Args&&... allocator_args) :
+    client<Queues, StatefulCallbacks...>::client(uint8_t resend_threshold, Args&&... allocator_args) :
         basic_client(),
         StatefulCallbacks()...,
         _super_packet(resend_threshold, std::forward<Args>(allocator_args)...)
     {}
 
     template <typename Queues, stateful_callback... StatefulCallbacks>
-    inline void client<Queues, StatefulCallbacks>::reset() noexcept
+    inline void client<Queues, StatefulCallbacks...>::reset() noexcept
     {
         basic_client::reset();
         _super_packet.reset();
@@ -61,7 +61,7 @@ namespace kaminari
 
     template <typename Queues, stateful_callback... StatefulCallbacks>
     template <typename TimeBase>
-    inline void client<Queues, StatefulCallbacks>::received_packet(const boost::intrusive_ptr<data_wrapper>& data)
+    inline void client<Queues, StatefulCallbacks...>::received_packet(const boost::intrusive_ptr<data_wrapper>& data)
     {
         super_packet_reader reader(data);
 
@@ -93,20 +93,20 @@ namespace kaminari
     }
 
     template <typename Queues, stateful_callback... StatefulCallbacks>
-    inline kaminari::super_packet<Queues>* client<Queues, StatefulCallbacks>::super_packet()
+    inline kaminari::super_packet<Queues>* client<Queues, StatefulCallbacks...>::super_packet()
     {
         return &_super_packet;
     }
 
     template <typename Queues, stateful_callback... StatefulCallbacks>
-    inline kaminari::protocol* client<Queues, StatefulCallbacks>::protocol()
+    inline kaminari::protocol* client<Queues, StatefulCallbacks...>::protocol()
     {
         return &_protocol;
     }
 
     template <typename Queues, stateful_callback... StatefulCallbacks>
     template <typename T>
-    inline constexpr bool client<Queues, StatefulCallbacks>::has_stateful_callback() const
+    constexpr bool client<Queues, StatefulCallbacks...>::has_stateful_callback()
     {
         return (std::same_as<T, StatefulCallbacks> || ...);
     }

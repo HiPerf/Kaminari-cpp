@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kaminari/addons/server_based_sync.hpp>
+#include <kaminari/addons/server_based_phase_sync.hpp>
 
 #include <function2/function2.hpp>
 
@@ -29,6 +29,8 @@ namespace kaminari
 
     public:
         phase_sync();
+        phase_sync(phase_sync<base_time, expected_tick_rate>&& other);
+        phase_sync<base_time, expected_tick_rate>& operator=(phase_sync<base_time, expected_tick_rate>&& other);
 
         template <typename C>
         void on_receive_packet(C* client, uint16_t last_server_id);
@@ -77,6 +79,50 @@ namespace kaminari
     {}
 
     template <chrono_duration base_time, uint64_t expected_tick_rate>
+    phase_sync<base_time, expected_tick_rate>::phase_sync(phase_sync<base_time, expected_tick_rate>&& other) :
+        _tick_time(std::move(other._tick_time)),
+        _next_tick(std::move(other._next_tick)),
+        _integrator(other._integrator),
+        _adjusted_integrator(other._adjusted_integrator),
+        _last_processed_packet(other._last_processed_packet),
+        _running(other._running),
+        _thread(std::move(other._thread))
+    {
+        std::lock_guard lk1(other._mutex);
+        std::lock_guard lk2(_mutex);
+
+        _oneshot_early = std::move(other._oneshot_early);
+        _oneshot = std::move(other._oneshot);
+        _oneshot_late = std::move(other._oneshot_late);
+        _recurrent_early = std::move(other._recurrent_early);
+        _recurrent = std::move(other._recurrent);
+        _recurrent_late = std::move(other._recurrent_late);
+    }
+
+    template <chrono_duration base_time, uint64_t expected_tick_rate>
+    phase_sync<base_time, expected_tick_rate>& phase_sync<base_time, expected_tick_rate>::operator=(phase_sync<base_time, expected_tick_rate>&& other)
+    {
+        _tick_time = std::move(other._tick_time);
+        _next_tick = std::move(other._next_tick);
+        _integrator = other._integrator;
+        _adjusted_integrator = other._adjusted_integrator;
+        _last_processed_packet = other._last_processed_packet;
+        _running = other._running;
+        _thread = std::move(other._thread);
+
+        std::lock_guard lk1(other._mutex);
+        std::lock_guard lk2(_mutex);
+        _oneshot_early = std::move(other._oneshot_early);
+        _oneshot = std::move(other._oneshot);
+        _oneshot_late = std::move(other._oneshot_late);
+        _recurrent_early = std::move(other._recurrent_early);
+        _recurrent = std::move(other._recurrent);
+        _recurrent_late = std::move(other._recurrent_late);
+
+        return *this;
+    }
+
+    template <chrono_duration base_time, uint64_t expected_tick_rate>
     template <typename C>
     void phase_sync<base_time, expected_tick_rate>::on_receive_packet(C* client, uint16_t last_server_id)
     {
@@ -104,9 +150,9 @@ namespace kaminari
         // NCO
         _next_tick = time + base_time((uint64_t)_integrator);
 
-        if constexpr (client->has_stateful_callback<server_based_sync>())
+        if constexpr (C::template has_stateful_callback<server_based_phase_sync>())
         {
-            _adjusted_integrator = _integrator + ((server_based_sync*)client)->superpackets_id_diff();
+            _adjusted_integrator = _integrator + ((server_based_phase_sync*)client)->superpackets_id_diff();
         }
         else
         {
