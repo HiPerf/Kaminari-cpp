@@ -32,6 +32,8 @@ namespace kaminari
         phase_sync(phase_sync<base_time, expected_tick_rate>&& other);
         phase_sync<base_time, expected_tick_rate>& operator=(phase_sync<base_time, expected_tick_rate>&& other);
 
+        ~phase_sync();
+
         template <typename C>
         void on_receive_packet(C* client, uint16_t last_server_id);
 
@@ -78,6 +80,13 @@ namespace kaminari
         _running(true),
         _thread(&phase_sync<base_time, expected_tick_rate>::start, this)
     {}
+
+    template <chrono_duration base_time, uint64_t expected_tick_rate>
+    phase_sync<base_time, expected_tick_rate>::~phase_sync()
+    {
+        _running = false;
+        _thread.join();
+    }
 
     template <chrono_duration base_time, uint64_t expected_tick_rate>
     phase_sync<base_time, expected_tick_rate>::phase_sync(phase_sync<base_time, expected_tick_rate>&& other) :
