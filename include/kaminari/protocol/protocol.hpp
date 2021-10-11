@@ -156,6 +156,7 @@ namespace kaminari
             {
                 super_packet->set_flag(kaminari::super_packet_flags::ack);
                 super_packet->set_flag(kaminari::super_packet_flags::handshake);
+                super_packet->set_internal_flag(kaminari::super_packet_internal_flags::wait_first);
             }
         }
         else
