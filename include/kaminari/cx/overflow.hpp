@@ -48,6 +48,13 @@ namespace cx
         }
 
         template <typename T>
+        inline constexpr T abs_diff(T x, T y)
+        {
+            return
+                (x >= y) ? static_cast<T>(x - y) : static_cast<T>(y - x);
+        }
+
+        template <typename T>
         inline constexpr T sub0(T x, T y)
         {
             if (auto z = sub(x, y); z != 0)
