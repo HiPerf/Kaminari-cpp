@@ -49,6 +49,8 @@ namespace kaminari
 
                 Packer::_pending.resize(std::distance(Packer::_pending.begin(), part));
             }
+
+            Packer::_index = Packer::_pending.size();
         }
 
         inline void ack(uint16_t block_id)

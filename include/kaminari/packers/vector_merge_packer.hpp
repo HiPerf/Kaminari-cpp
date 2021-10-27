@@ -42,6 +42,8 @@ namespace kaminari
         // Opcode is ignored
         (void)_unused;
 
+        // HACK(gpascualg): Wild assumption, no two different threads will try to write the same ID
+
         // Do we have this entity already?
         auto id = data.id;
         if (auto it = _id_map.find(id); it != _id_map.end())
@@ -52,10 +54,20 @@ namespace kaminari
         }
         else
         {
+            // TODO(gpascualg): Code duplication w.r.t. packer.hpp
+            auto index = packer_t::_index++;
+            while (index != packer_t::_pending.size())
+            {
+#if defined(KAMINARY_YIELD_IN_BUSY_LOOP)
+                std::this_thread::yield();
+#endif
+            }
+
             auto pending = packer_t::_allocator.allocate(1);
             std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, std::forward<T>(data));
-            packer_t::_pending.push_back(pending);
+            // Emplace in map before doing so in pending, so that we don't increase size before it's ready
             _id_map.emplace(id, pending);
+            packer_t::_pending.emplace_back(pending);
         }
     }
 

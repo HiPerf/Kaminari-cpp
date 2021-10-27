@@ -62,6 +62,8 @@ namespace kaminari
     template <class Marshal, class Allocator>
     void most_recent_packer_by_opcode<Marshal, Allocator>::add(const buffers::packet::ptr& packet, uint16_t opcode)
     {
+        // HACK(gpascualg): Wild assumption, no two different threads will try to write the same opcode
+        
         // Add to pending
         if (auto it = _opcode_map.find(opcode); it != _opcode_map.end())
         {
@@ -71,11 +73,20 @@ namespace kaminari
         }
         else
         {
-            // Add to pending
+            // TODO(gpascualg): Code duplication w.r.t. packer.hpp
+            auto index = packer_t::_index++;
+            while (index != packer_t::_pending.size())
+            {
+#if defined(KAMINARY_YIELD_IN_BUSY_LOOP)
+                std::this_thread::yield();
+#endif
+            }
+
             auto pending = packer_t::_allocator.allocate(1);
-            std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, packet_by_opcode { packet, opcode });
-            packer_t::_pending.push_back(pending);
+            std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, packet_by_opcode{ packet, opcode });
+            // Emplace in map before doing so in pending, so that we don't increase size before it's ready
             _opcode_map.emplace(opcode, pending);
+            packer_t::_pending.emplace_back(pending);
         }
     }
 

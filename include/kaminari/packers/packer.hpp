@@ -32,6 +32,8 @@ namespace kaminari
 
     public:
         packer(uint8_t resend_threshold, const Allocator& alloc = Allocator());
+        packer(packer<Derived, Pending, Allocator>&& other) noexcept;
+        packer<Derived, Pending, Allocator>& operator=(packer<Derived, Pending, Allocator>&& other) noexcept;
 
         inline void ack(uint16_t block_id);
         inline void clear();
@@ -42,8 +44,27 @@ namespace kaminari
         inline uint16_t get_actual_block(const std::vector<uint16_t>& blocks, uint16_t block_id);
         inline uint16_t new_block_cost(uint16_t block_id, detail::packets_by_block& by_block);
 
+    protected:
+        // TODO(gpascualg): Revisit packer busy loop
+        detail::pending_data<Pending>* get_pending_data(const Pending& d)
+        {
+            auto index = _index++;
+            while (index != _pending.size())
+            {
+#if defined(KAMINARY_YIELD_IN_BUSY_LOOP)
+                std::this_thread::yield();
+#endif
+            }
+
+            auto pending = _allocator.allocate(1);
+            std::allocator_traits<Allocator>::construct(_allocator, pending, d);
+            return _pending.emplace_back(pending);
+        }
+
+    protected:
         uint8_t _resend_threshold;
         pending_vector_t _pending;
+        std::atomic<uint16_t> _index;
         Allocator _allocator;
     };
 
@@ -56,9 +77,30 @@ namespace kaminari
 
     template <typename Derived, typename Pending, class Allocator>
     packer<Derived, Pending, Allocator>::packer(uint8_t resend_threshold, const Allocator& alloc) :
-        _allocator(alloc),
-        _resend_threshold(resend_threshold)
+        _resend_threshold(resend_threshold),
+        _pending(),
+        _index(0),
+        _allocator(alloc)
     {}
+
+    template <typename Derived, typename Pending, class Allocator>
+    packer<Derived, Pending, Allocator>::packer(packer<Derived, Pending, Allocator>&& other) noexcept :
+        _resend_threshold(std::move(other._resend_threshold)),
+        _pending(std::move(other._pending)),
+        _index(static_cast<uint16_t>(other._index)),
+        _allocator(std::move(other._allocator))
+    {}
+
+    template <typename Derived, typename Pending, class Allocator>
+    packer<Derived, Pending, Allocator>& packer<Derived, Pending, Allocator>::operator=(packer<Derived, Pending, Allocator>&& other) noexcept
+    {
+        _resend_threshold = std::move(other._resend_threshold);
+        _pending = std::move(other._pending);
+        _index = static_cast<uint16_t>(other._index);
+        _allocator = std::move(other._allocator);
+
+        return *this;
+    }
 
     template <typename Derived, typename Pending, class Allocator>
     inline void packer<Derived, Pending, Allocator>::ack(uint16_t block_id)
@@ -81,6 +123,7 @@ namespace kaminari
 
         // Erase from vector
         _pending.erase(part, _pending.end());
+        _index = _pending.size();
     }
 
     template <typename Derived, typename Pending, class Allocator>
@@ -97,6 +140,7 @@ namespace kaminari
 
         // Clear
         _pending.clear();
+        _index = 0;
     }
 
     template <typename Derived, typename Pending, class Allocator>

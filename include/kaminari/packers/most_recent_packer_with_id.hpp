@@ -60,6 +60,8 @@ namespace kaminari
     template <class Marshal, class Allocator>
     void most_recent_packer_with_id<Marshal, Allocator>::add(const buffers::packet::ptr& packet, entity_id_t id)
     {
+        // HACK(gpascualg): Wild assumption, no two different threads will try to write the same ID
+        
         // Add to pending
         if (auto it = _id_map.find(id); it != _id_map.end())
         {
@@ -69,11 +71,20 @@ namespace kaminari
         }
         else
         {
-            // Add to pending
+            // TODO(gpascualg): Code duplication w.r.t. packer.hpp
+            auto index = packer_t::_index++;
+            while (index != packer_t::_pending.size())
+            {
+#if defined(KAMINARY_YIELD_IN_BUSY_LOOP)
+                std::this_thread::yield();
+#endif
+            }
+
             auto pending = packer_t::_allocator.allocate(1);
             std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, packet_with_id{ packet, id });
-            packer_t::_pending.push_back(pending);
+            // Emplace in map before doing so in pending, so that we don't increase size before it's ready
             _id_map.emplace(id, pending);
+            packer_t::_pending.emplace_back(pending);
         }
     }
 

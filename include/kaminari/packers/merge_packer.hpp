@@ -38,9 +38,7 @@ namespace kaminari
         (void)_unused;
 
         // In merge mode we add the detailed structure
-        auto pending = packer_t::_allocator.allocate(1);
-        std::allocator_traits<Allocator>::construct(packer_t::_allocator, pending, std::forward<Detail>(data));
-        packer_t::_pending.push_back(pending);
+        packer_t::get_pending_data(std::forward<Detail>(data));
     }
 
     template <typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator>

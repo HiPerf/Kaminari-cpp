@@ -42,6 +42,8 @@ namespace kaminari
         // Opcode is ignored
         (void)_unused;
 
+        // HACK(gpascualg): unique_merge_packer is broken in multithreaded environments without locks
+
         // Do we have a pending packet already?
         if (_unique)
         {
