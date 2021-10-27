@@ -17,6 +17,7 @@ set(KAMINARI_SOURCES
     ../include/kaminari/packers/packer.hpp
     ../include/kaminari/packers/unique_merge_packer.hpp
     ../include/kaminari/packers/vector_merge_packer.hpp
+    ../include/kaminari/packers/vector_merge_with_priority_packer.hpp
     ../include/kaminari/protocol/basic_protocol.hpp
     ../include/kaminari/protocol/protocol.hpp
     protocol/basic_protocol.cpp
