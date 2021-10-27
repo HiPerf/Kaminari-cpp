@@ -42,6 +42,7 @@ namespace kaminari
     {
         // Opcode is ignored
         (void)_unused;
+        assert(data.priority_multiplier > 1e-6f && "Multiplier must be higher than one");
 
         // HACK(gpascualg): Wild assumption, no two different threads will try to write the same ID
 
@@ -50,7 +51,9 @@ namespace kaminari
         if (auto it = _id_map.find(id); it != _id_map.end())
         {
             auto pending = it->second;
+            auto old_prio = pending->data.priority;
             pending->data = data;
+            pending->data.priority = (pending->data.priority + old_prio) / 2.0f / pending->data.priority_multiplier;
             pending->blocks.clear();
         }
         else
@@ -84,7 +87,8 @@ namespace kaminari
         // TODO(gpacualg): We might want to insert ordered instead, so we don't have to sort, but we can't right now
         //  Inserting ordered would break multithreading
         std::make_heap(packer_t::_pending.begin(), packer_t::_pending.end(), [](const auto& lhs, const auto& rhs) {
-                return lhs.priority < rhs.priority;
+                // Invert, as we want from lowest to greatest
+                return lhs->data.priority > rhs->data.priority;
             });
 
         // We can not naively pack everything into a single packet, as it might
