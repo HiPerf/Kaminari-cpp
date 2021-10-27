@@ -79,7 +79,7 @@ namespace kaminari
         auto it = _pending_super_packets.begin();
         while (it != _pending_super_packets.end())
         {
-            if (it->id() > reader.id())
+            if (cx::overflow::ge(it->id(), reader.id()))
             {
                 break;
             }
