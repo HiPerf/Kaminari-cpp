@@ -33,6 +33,7 @@ namespace kaminari
 
     inline constexpr uint32_t super_packet_header_size = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint8_t);
     inline constexpr uint32_t super_packet_ack_size = sizeof(uint16_t) + sizeof(uint32_t);
+    inline constexpr uint32_t super_packet_block_size = sizeof(uint16_t) + sizeof(uint8_t);
 
     template <typename Queues>
     class super_packet : public Queues
@@ -222,7 +223,7 @@ namespace kaminari
 
         // How much packet is there left?
         //  -1 is to account for the number of blocks
-        uint16_t remaining = 500 - (ptr - _data) - 1;
+        uint16_t remaining = MaxSize - (ptr - _data) - 1;
 
         bool has_data = false;
         if (!has_flag(super_packet_flags::handshake))
@@ -265,6 +266,8 @@ namespace kaminari
                 // Write in the packet
                 for (auto& [id, pending_packets] : by_block)
                 {
+                    static_assert(super_packet_block_size == sizeof(uint16_t) + sizeof(uint8_t), "Packet block size does not match");
+
                     // Write section identifier and number of packets
                     *reinterpret_cast<uint16_t*>(ptr) = static_cast<uint16_t>(id);
                     ptr += sizeof(uint16_t);

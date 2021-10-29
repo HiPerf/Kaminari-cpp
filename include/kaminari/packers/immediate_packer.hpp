@@ -74,9 +74,8 @@ namespace kaminari
             }
             else
             {
-                // TODO(gpascualg): Magic numbers, 4 is block header + block size
-                // TODO(gpascualg): This can be brought down to 3, block header + packet count
-                size += 4;
+                // Block header size
+                size += super_packet_block_size;
 
                 // TODO(gpascualg): Same as above, do we want to hard-break?
                 if (size > remaining)

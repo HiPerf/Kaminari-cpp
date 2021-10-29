@@ -3,6 +3,7 @@
 #include <kaminari/detail/detail.hpp>
 #include <kaminari/cx/overflow.hpp>
 #include <kaminari/buffers/packet.hpp>
+#include <kaminari/super_packet.hpp>
 
 #include <inttypes.h>
 #include <memory>
@@ -81,7 +82,9 @@ namespace kaminari
         _pending(),
         _index(0),
         _allocator(alloc)
-    {}
+    {
+        assert(_resend_threshold > 0 && "Use a threshold of 1 instead, which effectively does the same");
+    }
 
     template <typename Derived, typename Pending, class Allocator>
     packer<Derived, Pending, Allocator>::packer(packer<Derived, Pending, Allocator>&& other) noexcept :
@@ -178,9 +181,7 @@ namespace kaminari
     template <typename Derived, typename Pending, class Allocator>
     inline uint16_t packer<Derived, Pending, Allocator>::new_block_cost(uint16_t block_id, detail::packets_by_block& by_block)
     {
-        // TODO(gpascualg): Magic numbers, 4 is block header + block size
-        // TODO(gpascualg): This can be brought down to 3, block header + packet count
-        // Returns 2 if block_id is not in by_block, otherwise 0
-        return static_cast<uint16_t>(by_block.find(block_id) == by_block.end()) * 4;
+        // Returns 'super_packet_block_size' if block_id is not in by_block, otherwise 0
+        return static_cast<uint16_t>(by_block.find(block_id) == by_block.end()) * super_packet_block_size;
     }
 }

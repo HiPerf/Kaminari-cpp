@@ -100,8 +100,8 @@ namespace kaminari
             // Create the global structure
             Global global;
 
-            // TODO(gpascualg): MAGIC NUMBERS, 2 is vector size
-            uint16_t size = buffers::packet::DataStart + 2 + packer_t::new_block_cost(block_id, by_block);
+            // TODO(gpascualg): MAGIC NUMBERS, 1 is vector size
+            uint16_t size = buffers::packet::DataStart + 1 + packer_t::new_block_cost(block_id, by_block);
 
             // Populate it as big as we can
             for (; it != packer_t::_pending.end(); ++it)
@@ -125,29 +125,41 @@ namespace kaminari
                     break;
                 }
 
+                // Push data
                 size = next_size;
                 global.data.push_back(pending->data);
                 pending->blocks.push_back(block_id);
+
+                // Reprioritize
+                pending->data.priority = pending->data.priority * pending->data.priority_multiplier;
             }
 
             // Nothing to do here
             if (global.data.empty())
             {
-                return;
+                break;
             }
 
             buffers::packet::ptr packet = buffers::packet::make(opcode);
             Marshal::pack(packet, global);
             remaining -= size;
 
-            if (auto it = by_block.find(block_id); it != by_block.end())
+            if (auto jt = by_block.find(block_id); jt != by_block.end())
             {
-                it->second.push_back(packet);
+                jt->second.push_back(packet);
             }
             else
             {
                 by_block.emplace(block_id, std::initializer_list<buffers::packet::ptr> { packet });
             }
+        }
+
+        // Packets that didn't get selected are now boosted
+        // TODO(gpascualg): Find an apropiate multiplier here
+        for (; it != packer_t::_pending.end(); ++it)
+        {
+            auto& pending = *it;
+            pending->data.priority = pending->data.priority * 0.99f;
         }
     }
 
