@@ -359,7 +359,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    inline super_packet<Queues>::data_buffer* super_packet<Queues>::next_buffer()
+    inline typename super_packet<Queues>::data_buffer* super_packet<Queues>::next_buffer()
     {
         auto buffer = _data_buffers[_read_pointer];
         buffer->sent = true;
@@ -368,7 +368,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    inline const super_packet<Queues>::data_buffer* super_packet<Queues>::peek_last_buffer() const
+    inline const typename super_packet<Queues>::data_buffer* super_packet<Queues>::peek_last_buffer() const
     {
         auto pointer = _read_pointer;
         while (true)
