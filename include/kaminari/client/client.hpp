@@ -28,6 +28,7 @@ namespace kaminari
         client(uint8_t resend_threshold, Args&&... allocator_args);
 
         inline void reset() noexcept;
+        inline void clean() noexcept;
 
         template <typename TimeBase>
         inline void received_packet(const boost::intrusive_ptr<data_wrapper>& data);
@@ -58,6 +59,12 @@ namespace kaminari
         basic_client::reset();
         _super_packet.reset();
         _protocol.reset();
+    }
+
+    template <typename Queues, stateful_callback... StatefulCallbacks>
+    inline void client<Queues, StatefulCallbacks...>::clean() noexcept
+    {
+        _super_packet.clean();
     }
 
     template <typename Queues, stateful_callback... StatefulCallbacks>

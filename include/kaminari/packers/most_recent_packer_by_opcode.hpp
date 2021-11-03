@@ -33,7 +33,7 @@ namespace kaminari
         
         template <typename T, typename... Args>
         void add(uint16_t opcode, T&& data, Args&&... args);
-        void process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block);
+        void process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block);
 
     private:
         void add(const buffers::packet::ptr& packet, uint16_t opcode);
@@ -63,13 +63,14 @@ namespace kaminari
     void most_recent_packer_by_opcode<Marshal, Allocator>::add(const buffers::packet::ptr& packet, uint16_t opcode)
     {
         // HACK(gpascualg): Wild assumption, no two different threads will try to write the same opcode
-        
+
         // Add to pending
         if (auto it = _opcode_map.find(opcode); it != _opcode_map.end())
         {
             auto pending = it->second;
             pending->data.packet = packet;
-            pending->blocks.clear();
+            pending->internal_tick_list.clear();
+            pending->client_ack_ids.clear();
         }
         else
         {
@@ -91,16 +92,16 @@ namespace kaminari
     }
 
     template <class Marshal, class Allocator>
-    void most_recent_packer_by_opcode<Marshal, Allocator>::process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block)
+    void most_recent_packer_by_opcode<Marshal, Allocator>::process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block)
     {
         for (auto& pending : packer_t::_pending)
         {
-            if (!packer_t::is_pending(pending->blocks, block_id, false))
+            if (!packer_t::is_pending(pending->internal_tick_list, tick_id, false))
             {
                 continue;
             }
 
-            uint16_t actual_block = packer_t::get_actual_block(pending->blocks, block_id);
+            uint16_t actual_block = packer_t::get_actual_tick_id(pending->internal_tick_list, tick_id);
             uint16_t size = pending->data.packet->size();
             if (auto it = by_block.find(actual_block); it != by_block.end())
             {
@@ -109,6 +110,7 @@ namespace kaminari
                 //  factor for packets being ignored too much time
                 if (size > remaining)
                 {
+                    unfitting_data = true;
                     break;
                 }
 
@@ -123,13 +125,15 @@ namespace kaminari
                 // TODO(gpascualg): Same as above, do we want to hard-break?
                 if (size > remaining)
                 {
+                    unfitting_data = true;
                     break;
                 }
 
                 by_block.emplace(actual_block, std::initializer_list<buffers::packet::ptr> { pending->data.packet });
             }
 
-            pending->blocks.push_back(block_id);
+            pending->internal_tick_list.push_back(tick_id);
+            pending->client_ack_ids.push_back(block_id);
             remaining -= size;
         }
     }

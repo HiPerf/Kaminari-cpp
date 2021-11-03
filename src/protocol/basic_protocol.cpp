@@ -37,7 +37,7 @@ namespace kaminari
     bool basic_protocol::resolve(basic_client* client, buffers::packet_reader* packet, uint16_t block_id) noexcept
     {
         auto opcode = packet->opcode();
-        uint8_t id = packet->id();
+        uint32_t extended_id = packet->extended_id();
 
         if (auto it = _already_resolved.find(block_id); it != _already_resolved.end())
         {
@@ -50,7 +50,7 @@ namespace kaminari
                 if (cx::overflow::sub(_last_block_id_read, block_id) > _max_blocks_until_resync)
                 {
                     info.loop_counter = _loop_counter;
-                    info.packet_counters.clear();
+                    info.extended_counter.clear();
                 }
             }
             // Resync detection
@@ -61,18 +61,18 @@ namespace kaminari
             }
 
             // Check if block has already been parsed
-            if (auto jt = info.packet_counters.find(id); jt != info.packet_counters.end())
+            if (auto jt = info.extended_counter.find(extended_id); jt != info.extended_counter.end())
             {
                 return false;
             }
 
-            info.packet_counters.insert(id);
+            info.extended_counter.insert(extended_id);
         }
         else
         {
             _already_resolved.emplace(block_id, resolved_block {
                 .loop_counter = _loop_counter,
-                .packet_counters = std::set<uint8_t> { id }
+                .extended_counter = std::set<uint32_t> { extended_id }
             });
         }
         

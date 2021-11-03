@@ -16,10 +16,10 @@ namespace kaminari
     public:
         using Packer::Packer;
 
-        inline void process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block)
+        inline void process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block)
         {
             // Process first
-            Packer::process(block_id, remaining, by_block);
+            Packer::process(tick_id, block_id, remaining, unfitting_data, by_block);
 
             // There are two cases, zero retries or more
             if constexpr (max_retries == 0)
@@ -37,7 +37,7 @@ namespace kaminari
             {
                 // Reorder vec so that packets that still have retries are first
                 auto end = Packer::_pending.end();
-                auto part = std::partition(Packer::_pending.begin(), end, [](auto& x) { return x->blocks.size() <= max_retries; });
+                auto part = std::partition(Packer::_pending.begin(), end, [](auto& x) { return x->internal_tick_list.size() <= max_retries; });
 
                 // Free those that have reached max retries ar freed
                 for (auto it = part; it != end; ++it)

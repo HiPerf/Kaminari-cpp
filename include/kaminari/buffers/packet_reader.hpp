@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kaminari/buffers/common.hpp>
+
 #include <inttypes.h>
 #include <string>
 #include <type_traits>
@@ -49,11 +51,23 @@ namespace kaminari
                 }
             }
 
-            inline uint8_t length() const { return peek<uint8_t>(0); }
-            inline uint8_t id() const { return peek<uint8_t>(1); }
+            inline uint16_t opcode() const { return peek<uint16_t>(opcode_position) & opcode_mask; }
+            inline uint8_t counter() const
+            {
+                // We must take into account that OPCODE gets shifted in memory
+                //  LLHH, which leaves us 0LHHc
+                uint8_t low = peek<uint8_t>(0) & 0x0F;
+                uint8_t high = (peek<uint8_t>(2) & 0xC0) >> 2;
+                return high | low;
+            }
+
+            inline uint32_t extended_id() const
+            {
+                return peek<uint32_t>(opcode_position) & 0x00C0FFFF;
+            }
+
             inline uint16_t bytes_read() const { return static_cast<uint16_t>(_ptr - &_data[0]); }
-            inline uint16_t opcode() const { return peek<uint16_t>(2); }
-            inline uint8_t offset() const { return peek<uint8_t>(5); }
+            inline uint8_t offset() const { return peek<uint8_t>(header_unshifted_flags_position) & (~((1 << 7) | (1 << 6))); }
             inline uint64_t timestamp() const;
             inline uint16_t buffer_size() const;
 

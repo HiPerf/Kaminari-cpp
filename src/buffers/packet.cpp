@@ -12,8 +12,9 @@ namespace kaminari
             _references(0),
             _on_ack(nullptr)
         {
-            *reinterpret_cast<uint16_t*>(_data + 2) = static_cast<uint16_t>(opcode);
-            _ptr = &_data[0] + DataStart;
+            *reinterpret_cast<uint16_t*>(_data + opcode_position) = static_cast<uint16_t>(opcode);
+            *reinterpret_cast<uint8_t*>(_data + header_unshifted_flags_position) = static_cast<uint8_t>(0);
+            _ptr = &_data[0] + packet_data_start;
         }
 
         packet::packet(const packet& other) :
@@ -32,6 +33,7 @@ namespace kaminari
 
         void packet::free(packet* packet)
         {
+            // TODO(gpacualg): Test if having a noop instead of an if is faster
             if (packet->_on_ack)
             {
                 packet->_on_ack();
@@ -42,8 +44,17 @@ namespace kaminari
 
         const packet& packet::finish(uint8_t counter)
         {
-            *reinterpret_cast<uint8_t*>(_data) = size();
-            *reinterpret_cast<uint8_t*>(_data + 1) = counter;
+#if !defined(NDEBUG)
+            auto old_opcode = opcode();
+#endif
+
+            // We must take into account that OPCODE (HHL0) gets shifted in memory to L0HH
+            *reinterpret_cast<uint8_t*>(_data + 0) |= (counter & 0x0F);
+            *reinterpret_cast<uint8_t*>(_data + 2) |= ((counter & 0x30) << 2);
+
+#if !defined(NDEBUG)
+            assert(old_opcode == opcode() && "After writing counter, opcode is wrong");
+#endif
             return *this;
         }
     }

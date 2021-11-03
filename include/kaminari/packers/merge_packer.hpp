@@ -22,7 +22,7 @@ namespace kaminari
         
         template <typename... Args>
         void add(uint16_t _unused, Detail&& data, Args&&... args);
-        void process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block);
+        void process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block);
 
     protected:
         inline void on_ack(const typename pending_vector_t::iterator& part);
@@ -42,7 +42,7 @@ namespace kaminari
     }
 
     template <typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator>
-    inline void merge_packer<Global, Detail, opcode, Marshal, Allocator>::process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block)
+    inline void merge_packer<Global, Detail, opcode, Marshal, Allocator>::process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block)
     {
         // Do not do useless jobs
         if (packer_t::_pending.empty())
@@ -54,12 +54,12 @@ namespace kaminari
         Global global;
 
         // TODO(gpascualg): MAGIC NUMBERS, 2 is vector size
-        uint16_t size = buffers::packet::DataStart + 2 + packer_t::new_block_cost(block_id, by_block);
+        uint16_t size = packet_data_start + 2 + packer_t::new_tick_block_cost(tick_id, by_block);
 
         // Populate it as big as we can
         for (auto& pending : packer_t::_pending)
         {
-            if (!packer_t::is_pending(pending->blocks, block_id, false))
+            if (!packer_t::is_pending(pending->internal_tick_list, tick_id, false))
             {
                 continue;
             }
@@ -68,12 +68,14 @@ namespace kaminari
             auto next_size = size + Marshal::packet_size(pending->data);
             if (next_size > remaining)
             {
+                unfitting_data = true;
                 break;
             }
 
             size = next_size;
             global.data.push_back(pending->data);
-            pending->blocks.push_back(block_id);
+            pending->internal_tick_list.push_back(tick_id);
+            pending->client_ack_ids.push_back(block_id);
         }
 
         // Nothing to do here
@@ -86,13 +88,13 @@ namespace kaminari
         Marshal::pack(packet, global);
         remaining -= size;
 
-        if (auto it = by_block.find(block_id); it != by_block.end())
+        if (auto it = by_block.find(tick_id); it != by_block.end())
         {
             it->second.push_back(packet);
         }
         else
         {
-            by_block.emplace(block_id, std::initializer_list<buffers::packet::ptr> { packet });
+            by_block.emplace(tick_id, std::initializer_list<buffers::packet::ptr> { packet });
         }
     }
 

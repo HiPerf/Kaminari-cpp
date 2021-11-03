@@ -22,15 +22,15 @@ namespace kaminari
         template <typename T, typename... Args>
         void add(uint16_t opcode, T&& data, Args&&... args);
         void add(const buffers::packet::ptr& packet);
-        void process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block);
+        void process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block);
 
     protected:
-        bool is_pending(uint16_t block_id);
+        bool is_pending(uint16_t tick_id);
         inline void on_ack(const typename packer_t::pending_vector_t::iterator& part);
         inline void clear();
 
     protected:
-        uint16_t _last_block;
+        uint16_t _last_tick;
         bool _has_new_packet;
     };
 
@@ -56,10 +56,10 @@ namespace kaminari
     }
 
     template <class Marshal, class Allocator>
-    void ordered_packer<Marshal, Allocator>::process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block)
+    void ordered_packer<Marshal, Allocator>::process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block)
     {
         // Pending is global in case of ordered packets
-        if (!is_pending(block_id))
+        if (!is_pending(tick_id))
         {
             return;
         }
@@ -69,7 +69,7 @@ namespace kaminari
         for (auto it = packer_t::_pending.begin(); it != packer_t::_pending.end(); ++it, ++num_inserted)
         {
             auto& pending = *it;
-            uint16_t actual_block = packer_t::get_actual_block(pending->blocks, block_id);
+            uint16_t actual_block = packer_t::get_actual_tick_id(pending->internal_tick_list, tick_id);
             uint16_t size = pending->data->size();
             if (auto it = by_block.find(actual_block); it != by_block.end())
             {
@@ -78,6 +78,7 @@ namespace kaminari
                 //  factor for packets being ignored too much time
                 if (size > remaining)
                 {
+                    unfitting_data = true;
                     break;
                 }
 
@@ -91,13 +92,15 @@ namespace kaminari
                 // TODO(gpascualg): Same as above, do we want to hard-break?
                 if (size > remaining)
                 {
+                    unfitting_data = true;
                     break;
                 }
 
                 by_block.emplace(actual_block, std::initializer_list<buffers::packet::ptr> { pending->data });
             }
 
-            pending->blocks.push_back(block_id);
+            pending->internal_tick_list.push_back(tick_id);
+            pending->client_ack_ids.push_back(block_id);
             remaining -= size;
         }
 
@@ -105,12 +108,12 @@ namespace kaminari
         if (num_inserted > 0)
         {
             _has_new_packet = false;
-            _last_block = block_id;
+            _last_tick = tick_id;
         }
     }
 
     template <class Marshal, class Allocator>
-    bool ordered_packer<Marshal, Allocator>::is_pending(uint16_t block_id)
+    bool ordered_packer<Marshal, Allocator>::is_pending(uint16_t tick_id)
     {
         if (packer_t::_pending.empty())
         {
@@ -120,7 +123,7 @@ namespace kaminari
         // Pending inclusions are those forced, not yet included in any block or
         // which have expired without an ack
         return _has_new_packet ||
-            cx::overflow::sub(block_id, _last_block) >= packer_t::_resend_threshold; // We do want 0s here
+            cx::overflow::sub(tick_id, _last_tick) >= packer_t::_resend_threshold; // We do want 0s here
     }
 
     template <class Marshal, class Allocator>

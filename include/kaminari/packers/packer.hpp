@@ -20,7 +20,8 @@ namespace kaminari
             pending_data(const Pending& d);
 
             Pending data;
-            std::vector<uint16_t> blocks;
+            std::vector<uint16_t> internal_tick_list;
+            std::vector<uint16_t> client_ack_ids;
         };
     }
         
@@ -41,9 +42,9 @@ namespace kaminari
 
         inline void reset();
 
-        bool is_pending(const std::vector<uint16_t>& blocks, uint16_t block_id, bool force);
-        inline uint16_t get_actual_block(const std::vector<uint16_t>& blocks, uint16_t block_id);
-        inline uint16_t new_block_cost(uint16_t block_id, detail::packets_by_block& by_block);
+        bool is_pending(const std::vector<uint16_t>& internal_ticks, uint16_t tick_id, bool force);
+        inline uint16_t get_actual_tick_id(const std::vector<uint16_t>& internal_ticks, uint16_t tick_id);
+        inline uint16_t new_tick_block_cost(uint16_t tick_id, detail::packets_by_block& by_block);
 
     protected:
         // TODO(gpascualg): Revisit packer busy loop
@@ -73,7 +74,8 @@ namespace kaminari
     template <typename Pending>
     detail::pending_data<Pending>::pending_data(const Pending& d) :
         data(d),
-        blocks()
+        internal_tick_list(),
+        client_ack_ids()
     {}
 
     template <typename Derived, typename Pending, class Allocator>
@@ -110,7 +112,8 @@ namespace kaminari
     {
         // Partition data
         auto part = std::partition(_pending.begin(), _pending.end(), [block_id](const auto& pending) {
-            return std::find(pending->blocks.begin(), pending->blocks.end(), block_id) == pending->blocks.end();
+            // TODO(gpascualg): Client ack ids are always ASC ordered, might be worth to consider binary search
+            return std::find(pending->client_ack_ids.begin(), pending->client_ack_ids.end(), block_id) == pending->client_ack_ids.end();
         });
 
         // Call any callback
@@ -153,10 +156,10 @@ namespace kaminari
     }
 
     template <typename Derived, typename Pending, class Allocator>
-    bool packer<Derived, Pending, Allocator>::is_pending(const std::vector<uint16_t>& blocks, uint16_t block_id, bool force)
+    bool packer<Derived, Pending, Allocator>::is_pending(const std::vector<uint16_t>& internal_ticks, uint16_t tick_id, bool force)
     {
         // Do not add the same packet two times, which would probably be due to dependencies
-        if (!blocks.empty() && blocks.back() == block_id)
+        if (!internal_ticks.empty() && internal_ticks.back() == tick_id)
         {
             return false;
         }
@@ -164,24 +167,24 @@ namespace kaminari
         // Pending inclusions are those forced, not yet included in any block or
         // which have expired without an ack
         return force ||
-            blocks.empty() ||
-            cx::overflow::sub(block_id, blocks.back()) >= _resend_threshold; // We do want 0s here
+            internal_ticks.empty() ||
+            cx::overflow::sub(tick_id, internal_ticks.back()) >= _resend_threshold;
     }
 
     template <typename Derived, typename Pending, class Allocator>
-    inline uint16_t packer<Derived, Pending, Allocator>::get_actual_block(const std::vector<uint16_t>& blocks, uint16_t block_id)
+    inline uint16_t packer<Derived, Pending, Allocator>::get_actual_tick_id(const std::vector<uint16_t>& internal_ticks, uint16_t tick_id)
     {
-        if (!blocks.empty())
+        if (!internal_ticks.empty())
         {
-            block_id = blocks.front();
+            tick_id = internal_ticks.front();
         }
-        return block_id;
+        return tick_id;
     }
 
     template <typename Derived, typename Pending, class Allocator>
-    inline uint16_t packer<Derived, Pending, Allocator>::new_block_cost(uint16_t block_id, detail::packets_by_block& by_block)
+    inline uint16_t packer<Derived, Pending, Allocator>::new_tick_block_cost(uint16_t tick_id, detail::packets_by_block& by_block)
     {
-        // Returns 'super_packet_block_size' if block_id is not in by_block, otherwise 0
-        return static_cast<uint16_t>(by_block.find(block_id) == by_block.end()) * super_packet_block_size;
+        // Returns 'super_packet_block_size' if tick_id is not in by_block, otherwise 0
+        return static_cast<uint16_t>(by_block.find(tick_id) == by_block.end()) * super_packet_block_size;
     }
 }

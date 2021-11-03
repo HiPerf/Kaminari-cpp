@@ -44,7 +44,7 @@ namespace kaminari
         void initiate_handshake(::kaminari::super_packet<Queues>* super_packet);
 
         template <typename Queues>
-        bool update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+        bool update(uint16_t tick_id, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
 
         template <typename TimeBase, uint64_t interval, typename Marshal, typename Queues>
         bool read(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet);
@@ -66,11 +66,10 @@ namespace kaminari
     void protocol::initiate_handshake(::kaminari::super_packet<Queues>* super_packet)
     {
         super_packet->set_flag(::kaminari::super_packet_flags::handshake);
-        super_packet->set_internal_flag(::kaminari::super_packet_internal_flags::wait_first);
     }
 
     template <typename Queues>
-    bool protocol::update(::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+    bool protocol::update(uint16_t tick_id, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
     {
         bool needs_ping = basic_protocol::update();
         if (needs_ping)
@@ -79,20 +78,44 @@ namespace kaminari
             scheduled_ping();
         }
 
-        if (super_packet->finish())
+        bool first_packet = true;
+        super_packet->prepare();
+        while (super_packet->finish(tick_id, first_packet))
         {
-            if (!super_packet->has_flag(kaminari::super_packet_flags::handshake) && 
-                !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first))
+            if (!super_packet->has_flag(kaminari::super_packet_flags::handshake))
             {
                 _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
             }
 
-            return true;
+            if (!first_packet)
+            {
+                spdlog::critical("SECOND PACKET {} SIZE {}", tick_id, super_packet->peek_last_buffer()->size);
+            }
+
+            first_packet = false;
+
+            // If there is nothing else to send, done
+            if (!super_packet->last_left_data())
+            {
+                break;
+            }
         }
 
-        // If there is no new superpacket, erase it from the map
-        _send_timestamps.erase(super_packet->id());
-        return false;
+        // first_packet will only be true if no superpacket has been finished
+        //  that is, if there is nothing to send
+        if (first_packet)
+        {
+            // TODO(gpascualg): Find a better way to erase old timestamps
+            // If there is no new superpacket, erase it from the map
+            _send_timestamps.erase(super_packet->id());
+
+            // Reaching here means there is nothing to send, but the superpacket increased
+            //  its write pointer, which means we must increase read pointer to compensate
+            super_packet->free(super_packet->next_buffer());
+        }
+
+        // We have updates if first_packet is false
+        return !first_packet;
     }
 
     template <typename TimeBase, uint64_t interval, typename Marshal, typename Queues>
@@ -105,7 +128,7 @@ namespace kaminari
         if (!client->has_pending_super_packets())
         {
             // Increment expected eiter way
-            increase_expected(super_packet);
+            _expected_block_id = cx::overflow::inc(_expected_block_id);
 
             if (++_since_last_recv > max_blocks_until_disconnection())
             {
@@ -136,10 +159,10 @@ namespace kaminari
         }
 
         // Flag for next block
-        increase_expected(super_packet);
+        _expected_block_id = cx::overflow::inc(_expected_block_id);
 
         // Now update marshal if it has too
-        marshal.update(client, _expected_block_id);
+        marshal.update(client, _last_tick_id_read);
 
         return true;
     }
@@ -156,12 +179,7 @@ namespace kaminari
             {
                 super_packet->set_flag(kaminari::super_packet_flags::ack);
                 super_packet->set_flag(kaminari::super_packet_flags::handshake);
-                super_packet->set_internal_flag(kaminari::super_packet_internal_flags::wait_first);
             }
-        }
-        else
-        {
-            super_packet->clear_internal_flag(kaminari::super_packet_internal_flags::wait_first);
         }
 
         // Acknowledge user acks
@@ -177,8 +195,7 @@ namespace kaminari
     template <typename Queues>
     void protocol::increase_expected(::kaminari::super_packet<Queues>* super_packet)
     {
-        if (!super_packet->has_flag(kaminari::super_packet_flags::handshake) && 
-            !super_packet->has_internal_flag(kaminari::super_packet_internal_flags::wait_first))
+        if (!super_packet->has_flag(kaminari::super_packet_flags::handshake))
         {
             _expected_block_id = cx::overflow::inc(_expected_block_id);
         }
@@ -203,6 +220,7 @@ namespace kaminari
             
             // Do nothing
             _last_block_id_read = reader.id();
+            _last_tick_id_read = reader.tick_id();
             return;
         }
 
@@ -225,6 +243,7 @@ namespace kaminari
 
         // Handle all inner packets
         _last_block_id_read = reader.id();
+        _last_tick_id_read = reader.tick_id();
         reader.handle_packets<TimeBase, interval>(client, marshal, this);
     }
 

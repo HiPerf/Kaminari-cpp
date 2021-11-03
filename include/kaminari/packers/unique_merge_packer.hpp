@@ -24,7 +24,7 @@ namespace kaminari
 
         template <typename T, typename... Args>
         void add(uint16_t _unused, T&& data, Args&&... args);
-        void process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block);
+        void process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block);
 
     protected:
         inline void on_ack(const typename pending_vector_t::iterator& part);
@@ -48,7 +48,8 @@ namespace kaminari
         if (_unique)
         {
             _unique->data = data;
-            _unique->blocks.clear();
+            _unique->internal_tick_list.clear();
+            _unique->client_ack_ids.clear();
         }
         else
         {
@@ -59,7 +60,7 @@ namespace kaminari
     }
 
     template <typename Id, typename Global, typename Detail, uint16_t opcode, class Marshal, class Allocator>
-    inline void unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::process(uint16_t block_id, uint16_t& remaining, detail::packets_by_block& by_block)
+    inline void unique_merge_packer<Id, Global, Detail, opcode, Marshal, Allocator>::process(uint16_t tick_id, uint16_t block_id, uint16_t& remaining, bool& unfitting_data, detail::packets_by_block& by_block)
     {
         // Do not do useless jobs
         if (_unique == nullptr)
@@ -68,9 +69,10 @@ namespace kaminari
         }
 
         // TODO(gpascualg): MAGIC NUMBERS, 2 is vector size
-        uint16_t size = buffers::packet::DataStart + packer_t::new_block_cost(block_id, by_block) + Marshal::packet_size(_unique->data);
+        uint16_t size = packet_data_start + packer_t::new_tick_block_cost(tick_id, by_block) + Marshal::packet_size(_unique->data);
         if (size > remaining)
         {
+            unfitting_data = true;
             return;
         }
 
@@ -78,13 +80,13 @@ namespace kaminari
         Marshal::pack(packet, _unique->data);
         remaining -= size;
 
-        if (auto it = by_block.find(block_id); it != by_block.end())
+        if (auto it = by_block.find(tick_id); it != by_block.end())
         {
             it->second.push_back(packet);
         }
         else
         {
-            by_block.emplace(block_id, std::initializer_list<buffers::packet::ptr> { packet });
+            by_block.emplace(tick_id, std::initializer_list<buffers::packet::ptr> { packet });
         }
     }
 

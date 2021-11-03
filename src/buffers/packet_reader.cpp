@@ -11,7 +11,7 @@ namespace kaminari
             _block_timestamp(block_timestamp),
             _buffer_size(buffer_size)
         {
-            _ptr = data + packet::DataStart;
+            _ptr = data + packet_data_start;
         }
     }
 }

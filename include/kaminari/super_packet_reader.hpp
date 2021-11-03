@@ -1,5 +1,6 @@
 #pragma once
 
+#include <kaminari/buffers/common.hpp>
 #include <kaminari/buffers/packet_reader.hpp>
 #include <kaminari/buffers/packet.hpp>
 #include <kaminari/super_packet.hpp>
@@ -7,6 +8,7 @@
 #include <kaminari/protocol/basic_protocol.hpp>
 #include <kaminari/client/basic_client.hpp>
 #include <kaminari/types/data_wrapper.hpp>
+#include <kaminari/marshal_parse_state.hpp>
 
 #include <boost/intrusive_ptr.hpp>
 
@@ -28,7 +30,7 @@ namespace kaminari
         super_packet_reader& operator=(const super_packet_reader&) = default;
         super_packet_reader& operator=(super_packet_reader&&) = default;
 
-        inline uint16_t length() const;
+        inline uint16_t tick_id() const;
         inline uint16_t id() const;
         inline bool has_flag(super_packet_flags flag) const;
 
@@ -51,7 +53,7 @@ namespace kaminari
     };
 
 
-    inline uint16_t super_packet_reader::length() const
+    inline uint16_t super_packet_reader::tick_id() const
     {
         return *reinterpret_cast<const uint16_t*>(_data->data);
     }
@@ -156,19 +158,31 @@ namespace kaminari
             for (uint8_t j = 0; j < num_packets && remaining > 0; ++j)
             {
                 buffers::packet_reader reader(block_pos, block_timestamp, remaining);
-                uint16_t length = reader.length();
-                block_pos += length;
-                remaining -= length;
-
-                if (length < buffers::packet::DataStart || remaining < 0)
-                {
-                    // TODO(gpascualg): Should we kick the player for packet forging?
-                    return;
-                }
-
                 if (protocol->resolve(client, &reader, block_id))
                 {
-                    marshal.handle_packet(client, &reader, block_id);
+                    switch (marshal.handle_packet(client, &reader, block_id))
+                    {
+                        case marshal_parse_state::parsing_failed:
+                            // TODO(gpascualg): Call some user method
+                            return;
+
+                        case marshal_parse_state::parsing_done:
+                            block_pos += reader.bytes_read();
+                            remaining -= reader.bytes_read();
+                            break;
+
+                        case marshal_parse_state::parsing_skipped:
+                            auto size = packet_data_start + marshal.packet_size(&reader);
+                            block_pos += size;
+                            remaining -= size;
+                            break;
+                    }
+                }
+                else
+                {
+                    auto size = packet_data_start + marshal.packet_size(&reader);
+                    block_pos += size;
+                    remaining -= size;
                 }
             }
         }

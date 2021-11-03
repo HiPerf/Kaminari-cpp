@@ -1,5 +1,6 @@
 #pragma once
 
+#include <kaminari/buffers/common.hpp>
 
 #include <inttypes.h>
 #include <string>
@@ -11,8 +12,6 @@
 
 namespace kaminari
 {
-    constexpr uint8_t MAX_PACKET_SIZE = 255;
-
     template <typename Q> class super_packet;
 
     namespace buffers
@@ -27,10 +26,8 @@ namespace kaminari
             packet(uint16_t opcode);
             
             using ptr = boost::intrusive_ptr<packet>;
-            static const uint8_t DataStart = sizeof(uint8_t) * 2 + sizeof(uint16_t) + sizeof(uint8_t);
-            
-            static boost::intrusive_ptr<packet> make(uint16_t opcode);
 
+            static boost::intrusive_ptr<packet> make(uint16_t opcode);
             template <typename C>
             static boost::intrusive_ptr<packet> make(uint16_t opcode, C&& on_ack);
 
@@ -70,10 +67,24 @@ namespace kaminari
                 return boost::asio::buffer(_ptr, size);
             }
 
-            inline uint8_t length() const { return peek<uint8_t>(0); }
-            inline uint16_t opcode() const { return peek<uint16_t>(2); }
-            inline uint8_t id() const { return peek<uint8_t>(4); }
-            inline uint8_t size() const { return static_cast<uint8_t>(_ptr - &_data[0]); }
+            inline uint16_t opcode() const
+            { 
+                return peek<uint16_t>(opcode_position) & opcode_mask; 
+            }
+
+            inline uint8_t counter() const 
+            {
+                // We must take into account that OPCODE gets shifted in memory
+                //  LLHH, which leaves us 0LHHc
+                uint8_t low = peek<uint8_t>(0) & 0x0F;
+                uint8_t high = (peek<uint8_t>(2) & 0xC0) >> 2;
+                return high | low;
+            }
+
+            inline uint8_t size() const 
+            { 
+                return static_cast<uint8_t>(_ptr - &_data[0]);
+            }
 
         private:
             explicit packet(const packet& other);
@@ -105,8 +116,8 @@ namespace kaminari
             {
                 if constexpr (std::is_base_of_v<packet::ptr, T>)
                 {
-                    uint8_t size = v->length() - DataStart;
-                    memcpy(ptr, v->_data + DataStart, size);
+                    uint8_t size = v->length() - packet_data_start;
+                    memcpy(ptr, v->_data + packet_data_start, size);
                     ptr += size;
                 }
                 else if constexpr (std::is_same_v<float, T>)

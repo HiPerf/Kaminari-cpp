@@ -35,19 +35,28 @@ namespace kaminari
     inline constexpr uint32_t super_packet_ack_size = sizeof(uint16_t) + sizeof(uint32_t);
     inline constexpr uint32_t super_packet_block_size = sizeof(uint16_t) + sizeof(uint8_t);
 
+    inline constexpr uint16_t super_packet_min_header_size = 5;
+    inline constexpr uint16_t super_packet_max_size = 512;
+
     template <typename Queues>
     class super_packet : public Queues
     {
-    public:
-        constexpr static inline uint16_t MinHeaderSize = 5;
-        constexpr static inline uint16_t MaxSize = 512;
+        struct data_buffer
+        {
+            bool in_use;
+            bool sent;
+            uint8_t data[super_packet_max_size];
+            uint16_t size;
+        };
 
+    public:
         template <typename... Args>
         super_packet(uint8_t resend_threshold, Args&&... args);
         super_packet(const super_packet& other) = delete;
         super_packet(super_packet&& other) = default;
         super_packet& operator=(super_packet&& other) = default;
 
+        void clean();
         void reset();
 
         void set_flag(super_packet_flags flag);
@@ -64,39 +73,38 @@ namespace kaminari
         void schedule_ack(uint16_t block_id);
 
         // Obtain buffer
-        bool finish();
+        void prepare();
+        bool finish(uint16_t tick_id, bool is_first);
+        void free(data_buffer* buffer);
 
         inline uint16_t id() const;
-        inline const boost::asio::const_buffer& buffer() const;
+        inline bool has_buffer() const;
+        inline data_buffer* next_buffer();
+        inline const data_buffer* peek_last_buffer() const;
+
+        inline bool last_left_data() const;
 
     private:
         uint16_t _id;
         uint8_t _flags;
         uint8_t _internal_flags;
+        bool _last_left_data;
 
         // Needs acks from client
         uint16_t _ack_base;
         uint32_t _pending_acks;
         bool _must_ack;
         std::unordered_map<uint16_t, uint8_t> _clear_flags_on_ack;
-        
-        // Data array
-        uint8_t _data[MaxSize];
-        boost::asio::const_buffer _buffer;
+
+        // Data arrays
+        uint8_t _write_pointer;
+        uint8_t _read_pointer;
+        std::vector<data_buffer*> _data_buffers;
+
+        // Packet id counter
+        std::unordered_map<uint16_t, uint8_t> _opcode_counter;
     };
 
-
-    template <typename Queues>
-    inline uint16_t super_packet<Queues>::id() const
-    {
-        return _id;
-    }
-
-    template <typename Queues>
-    inline const boost::asio::const_buffer& super_packet<Queues>::buffer() const
-    {
-        return _buffer;    
-    }
 
     template <typename Queues>
     template <typename... Args>
@@ -110,6 +118,16 @@ namespace kaminari
     {}
 
     template <typename Queues>
+    void super_packet<Queues>::clean()
+    {
+        for (auto buffer : _data_buffers)
+        {
+            delete buffer;
+        }
+        _data_buffers.clear();
+    }
+
+    template <typename Queues>
     void super_packet<Queues>::reset()
     {
         _id = 0;
@@ -118,6 +136,13 @@ namespace kaminari
         _ack_base = 0;
         _pending_acks = 0;
         _must_ack = 0;
+        _write_pointer = 0;
+        _read_pointer = 0;
+
+        // Have one value ready
+        _data_buffers.push_back(new data_buffer{
+            .in_use = false
+        });
     }
 
     template <typename Queues>
@@ -148,7 +173,7 @@ namespace kaminari
             _clear_flags_on_ack.emplace(_id, (uint8_t)flag);
         }
     }
-    
+
     template <typename Queues>
     bool super_packet<Queues>::has_flag(super_packet_flags flag) const
     {
@@ -193,20 +218,38 @@ namespace kaminari
     }
 
     template <typename Queues>
-    bool super_packet<Queues>::finish()
+    void super_packet<Queues>::prepare()
     {
-        // Current write head
-        uint8_t* ptr = _data;
+        _opcode_counter.clear();
+    }
 
-        // First two bytes are size, next two id, next one flags
-        ptr += sizeof(uint16_t); // Will set length later!
+    template <typename Queues>
+    bool super_packet<Queues>::finish(uint16_t tick_id, bool is_first)
+    {
+        // Check if we have any available slots
+        if (_data_buffers[_write_pointer]->in_use)
+        {
+            _data_buffers.insert(_data_buffers.cbegin() + _write_pointer, new data_buffer{});
+        }
+
+        // Current write head
+        _data_buffers[_write_pointer]->in_use = true;
+        _data_buffers[_write_pointer]->sent = false;
+        auto* data = _data_buffers[_write_pointer]->data;
+        auto& size = _data_buffers[_write_pointer]->size;
+        _write_pointer = (_write_pointer + 1) % _data_buffers.size();
+        uint8_t* ptr = data;
+
+        // Superpacket header is [TICK_ID, PACKET_ID, FLAGS, ACK_BASE, ACKS]
+        *reinterpret_cast<uint16_t*>(ptr) = tick_id;
+        ptr += sizeof(uint16_t);
         *reinterpret_cast<uint16_t*>(ptr) = _id;
         ptr += sizeof(uint16_t);
         *reinterpret_cast<uint8_t*>(ptr) = _flags;
         ptr += sizeof(uint8_t);
 
         // Make sure
-        assert((ptr - _data) == super_packet_header_size && "Header size does not match");
+        assert((ptr - data) == super_packet_header_size && "Header size does not match");
 
         // Reset if there is something we must ack
         bool has_acks = _must_ack;
@@ -219,18 +262,20 @@ namespace kaminari
         *reinterpret_cast<uint32_t*>(ptr) = _pending_acks;
         ptr += sizeof(uint32_t);
 
-        assert((ptr - _data) == super_packet_header_size + super_packet_ack_size && "Ack size does not match");
+        assert((ptr - data) == super_packet_header_size + super_packet_ack_size && "Ack size does not match");
 
         // How much packet is there left?
         //  -1 is to account for the number of blocks
-        uint16_t remaining = MaxSize - (ptr - _data) - 1;
+        uint16_t remaining = super_packet_max_size - (ptr - data) - 1;
 
+        // Set that we didn't run short of space
+        _last_left_data = false;
         bool has_data = false;
         if (!has_flag(super_packet_flags::handshake))
         {
             // Organize pending opcodes by superpacket, oldest to newest
             detail::packets_by_block by_block;
-            Queues::process(_id, remaining, by_block);
+            Queues::process(tick_id, _id, remaining, _last_left_data, by_block);
 
             // Write number of blocks
             *reinterpret_cast<uint8_t*>(ptr) = by_block.size();
@@ -260,9 +305,6 @@ namespace kaminari
                     it = by_block.begin();
                 }
 
-                // Current packet counter
-                uint8_t counter = 0;
-
                 // Write in the packet
                 for (auto& [id, pending_packets] : by_block)
                 {
@@ -277,9 +319,9 @@ namespace kaminari
                     // Write all packets
                     for (auto& pending : pending_packets)
                     {
-                        if (id == _id)
+                        if (id == tick_id)
                         {
-                            pending->finish(counter++);
+                            pending->finish(_opcode_counter[pending->opcode()]++);
                         }
 
                         memcpy(ptr, pending->raw(), pending->size());
@@ -287,17 +329,64 @@ namespace kaminari
                     }
                 }
             }
-
-            // Increment _id for next iter and acks
-            _id = cx::overflow::inc(_id);
         }
 
-        // Done, write length
-        auto size = static_cast<uint16_t>(ptr - _data);
-        *reinterpret_cast<uint16_t*>(_data) = size;
+        // Increment _id for next iter and acks
+        _id = cx::overflow::inc(_id);
 
         // And done
-        _buffer = boost::asio::buffer(const_cast<const uint8_t*>(_data), static_cast<std::size_t>(size));
-        return _flags != 0 || has_acks || has_data;
+        size = ptr - data;
+        assert(size < super_packet_max_size && "Superpacket size exceeds maximum");
+        return has_acks || has_data || (is_first && _flags != 0);
+    }
+
+    template <typename Queues>
+    void super_packet<Queues>::free(data_buffer* buffer)
+    {
+        buffer->in_use = false;
+    }
+
+    template <typename Queues>
+    inline uint16_t super_packet<Queues>::id() const
+    {
+        return _id;
+    }
+
+    template <typename Queues>
+    inline bool super_packet<Queues>::has_buffer() const
+    {
+        return !_data_buffers[_read_pointer]->sent && _data_buffers[_read_pointer]->in_use;
+    }
+
+    template <typename Queues>
+    inline super_packet<Queues>::data_buffer* super_packet<Queues>::next_buffer()
+    {
+        auto buffer = _data_buffers[_read_pointer];
+        buffer->sent = true;
+        _read_pointer = (_read_pointer + 1) % _data_buffers.size();
+        return buffer;
+    }
+
+    template <typename Queues>
+    inline const super_packet<Queues>::data_buffer* super_packet<Queues>::peek_last_buffer() const
+    {
+        auto pointer = _read_pointer;
+        while (true)
+        {
+            auto next_pointer = (pointer + 1) % _data_buffers.size();
+            if (!_data_buffers[next_pointer]->in_use || next_pointer == _read_pointer)
+            {
+                return _data_buffers[pointer];
+            }
+            pointer = next_pointer;
+        }
+
+        return nullptr;
+    }
+
+    template <typename Queues>
+    inline bool super_packet<Queues>::last_left_data() const
+    {
+        return _last_left_data;
     }
 }
