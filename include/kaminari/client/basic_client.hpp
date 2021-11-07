@@ -35,7 +35,7 @@ namespace kaminari
         inline void flag_disconnecting() noexcept;
         inline void flag_desync() noexcept;
 
-        uint16_t first_super_packet_id() const noexcept;
+        uint16_t first_super_packet_tick_id() const noexcept;
         bool has_pending_super_packets() const noexcept;
         super_packet_reader first_super_packet() noexcept;
 

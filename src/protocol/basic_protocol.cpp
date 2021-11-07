@@ -23,8 +23,7 @@ namespace kaminari
         _buffer_size = 0;
         _since_last_ping = 0;
         _since_last_recv = 0;
-        _last_block_id_read = 0;
-        _expected_block_id = 0;
+        _expected_tick_id = 0;
         _timestamp = 0;
         _timestamp_block_id = 0;
         _already_resolved.clear();
@@ -47,14 +46,14 @@ namespace kaminari
             if (info.loop_counter != _loop_counter)
             {
                 // Maybe we are still in the turning point
-                if (cx::overflow::sub(_last_block_id_read, block_id) > _max_blocks_until_resync)
+                if (cx::overflow::sub(_last_tick_id_read, block_id) > _max_blocks_until_resync)
                 {
                     info.loop_counter = _loop_counter;
                     info.extended_counter.clear();
                 }
             }
             // Resync detection
-            else if (cx::overflow::sub(_last_block_id_read, block_id) > _max_blocks_until_resync)
+            else if (cx::overflow::sub(_last_tick_id_read, block_id) > _max_blocks_until_resync)
             {
                 client->flag_desync();
                 return false;

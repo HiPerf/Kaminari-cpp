@@ -49,8 +49,8 @@ namespace kaminari
         template <typename TimeBase, uint64_t interval, typename Marshal, typename Queues>
         bool read(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet);
 
-        template <typename TimeBase, typename Queues>
-        void handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet);
+        template <typename TimeBase, typename Queues, typename Marshal>
+        void handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, Marshal& marshal,::kaminari::super_packet<Queues>* super_packet);
 
         inline bool is_out_of_order(uint16_t id);
 
@@ -87,11 +87,6 @@ namespace kaminari
                 _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
             }
 
-            if (!first_packet)
-            {
-                spdlog::critical("SECOND PACKET {} SIZE {}", tick_id, super_packet->peek_last_buffer()->size);
-            }
-
             first_packet = false;
 
             // If there is nothing else to send, done
@@ -122,14 +117,11 @@ namespace kaminari
     bool protocol::read(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet)
     {
         // Update timestamp
-        _timestamp_block_id = _expected_block_id;
+        _timestamp_block_id = _expected_tick_id;
         _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
 
         if (!client->has_pending_super_packets())
         {
-            // Increment expected eiter way
-            _expected_block_id = cx::overflow::inc(_expected_block_id);
-
             if (++_since_last_recv > max_blocks_until_disconnection())
             {
                 client->flag_disconnection();
@@ -137,7 +129,8 @@ namespace kaminari
             }
 
             // Update marshal just in case
-            marshal.update(client, _expected_block_id);
+            marshal.update(client, _expected_tick_id);
+            _expected_tick_id = cx::overflow::inc(_expected_tick_id);
             return false;
         }
 
@@ -145,35 +138,39 @@ namespace kaminari
         _since_last_recv = 0;
 
         // When using kumo we are not buffering here, otherwise do so
-        uint16_t expected_id = _expected_block_id;
+        uint16_t expected_id = _expected_tick_id;
         if constexpr (!use_kumo_buffers)
         {
-            expected_id = cx::overflow::sub(_expected_block_id, static_cast<uint16_t>(_buffer_size));
+            expected_id = cx::overflow::sub(_expected_tick_id, static_cast<uint16_t>(_buffer_size));
         }
 
         // Keep reading superpackets until we reach the currently expected
         while (client->has_pending_super_packets() &&
-            !cx::overflow::ge(client->first_super_packet_id(), expected_id))
+            !cx::overflow::ge(client->first_super_packet_tick_id(), expected_id))
         {
             read_impl<TimeBase, interval>(client, marshal, super_packet);
         }
 
-        // Flag for next block
-        _expected_block_id = cx::overflow::inc(_expected_block_id);
-
         // Now update marshal if it has too
         marshal.update(client, _last_tick_id_read);
-
+        _expected_tick_id = cx::overflow::inc(_expected_tick_id);
         return true;
     }
 
-    template <typename TimeBase, typename Queues>
-    void protocol::handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, ::kaminari::super_packet<Queues>* super_packet)
+    template <typename TimeBase, typename Queues, typename Marshal>
+    void protocol::handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet)
     {
         // Handle flags immediately
         bool is_handshake = reader.has_flag(kaminari::super_packet_flags::handshake);
         if (is_handshake)
         {
+            // Overwrite default
+            _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
+            _loop_counter = 0;
+
+            _already_resolved.clear();
+            marshal.reset();
+
             // Acks have no implication for us, but non-acks mean we have to ack
             if (!reader.has_flag(kaminari::super_packet_flags::ack))
             {
@@ -197,7 +194,7 @@ namespace kaminari
     {
         if (!super_packet->has_flag(kaminari::super_packet_flags::handshake))
         {
-            _expected_block_id = cx::overflow::inc(_expected_block_id);
+            _expected_tick_id = cx::overflow::inc(_expected_tick_id);
         }
     }
     
@@ -210,39 +207,37 @@ namespace kaminari
         if (reader.has_flag(kaminari::super_packet_flags::handshake))
         {
 			// Make sure we are ready for the next valid block
-            _expected_block_id = cx::overflow::inc(reader.id());
+            //_expected_tick_id = cx::overflow::inc(reader.id());
 
-            // Reset all variables related to packet parsing
-            _timestamp_block_id = _expected_block_id;
-            _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
-            _loop_counter = 0;
-            _already_resolved.clear();
+            //// Reset all variables related to packet parsing
+            //_timestamp_block_id = _expected_tick_id;
+            //_timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
+            //_loop_counter = 0;
+            //_already_resolved.clear();
             
             // Do nothing
-            _last_block_id_read = reader.id();
             _last_tick_id_read = reader.tick_id();
             return;
         }
 
         // Unordered packets are not to be parsed, as they contain outdated information
         // in case that information was important, it would have already been resent and not added
-        assert(!is_out_of_order(reader.id()) && "An out of order packet should never reach here");
+        assert(!is_out_of_order(reader.tick_id()) && "An out of order packet should never reach here");
 
         // Check how old the packet is wrt what we expect
-        if (cx::overflow::sub(_expected_block_id, reader.id()) > max_blocks_until_resync())
+        if (cx::overflow::sub(_expected_tick_id, reader.tick_id()) > max_blocks_until_resync())
         {
             initiate_handshake(super_packet);
             client->flag_desync();
         }
 
         // Detect loop
-        if (_last_block_id_read > reader.id()) // Ie. 65536 > 0
+        if (_last_tick_id_read > reader.tick_id()) // Ie. 65536 > 0
         {
             _loop_counter = cx::overflow::inc(_loop_counter);
         }
 
         // Handle all inner packets
-        _last_block_id_read = reader.id();
         _last_tick_id_read = reader.tick_id();
         reader.handle_packets<TimeBase, interval>(client, marshal, this);
     }
@@ -251,11 +246,11 @@ namespace kaminari
     {
         if constexpr (use_kumo_buffers)
         {
-            return cx::overflow::le(id, cx::overflow::sub(_last_block_id_read, static_cast<uint16_t>(_buffer_size)));
+            return cx::overflow::le(id, cx::overflow::sub(_last_tick_id_read, static_cast<uint16_t>(_buffer_size)));
         }
         else
         {
-            return cx::overflow::le(id, _last_block_id_read);
+            return cx::overflow::le(id, _last_tick_id_read);
         }
     }
 }

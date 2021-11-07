@@ -33,9 +33,9 @@ namespace kaminari
         _lag = 50;
     }
 
-    uint16_t basic_client::first_super_packet_id() const noexcept
+    uint16_t basic_client::first_super_packet_tick_id() const noexcept
     {
-        return _pending_super_packets.front().id();
+        return _pending_super_packets.front().tick_id();
     }
 
     bool basic_client::has_pending_super_packets() const noexcept
