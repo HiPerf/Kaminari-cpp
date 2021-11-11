@@ -50,7 +50,7 @@ namespace kaminari
         bool read(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet);
 
         template <typename TimeBase, typename Queues, typename Marshal>
-        void handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, Marshal& marshal,::kaminari::super_packet<Queues>* super_packet);
+        void handle_acks(uint16_t tick_id, super_packet_reader& reader, ::kaminari::basic_client* client, Marshal& marshal,::kaminari::super_packet<Queues>* super_packet);
 
         inline bool is_out_of_order(uint16_t id);
 
@@ -158,12 +158,31 @@ namespace kaminari
     }
 
     template <typename TimeBase, typename Queues, typename Marshal>
-    void protocol::handle_acks(super_packet_reader& reader, ::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet)
+    void protocol::handle_acks(uint16_t tick_id, super_packet_reader& reader, ::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet)
     {
-        // Handle flags immediately
+        // Acknowledge user acks
+        reader.handle_acks<TimeBase>(super_packet, this, client);
+
+        // Let's add it to pending acks
         bool is_handshake = reader.has_flag(kaminari::super_packet_flags::handshake);
+        if (is_handshake || reader.has_data() || reader.is_ping_packet())
+        {
+            super_packet->schedule_ack(reader.id());
+        }
+
+        // Handle flags immediately
         if (is_handshake)
         {
+            // TODO(gpascualg): Remove re-handshake max diff magic number
+            if (cx::overflow::abs_diff(reader.tick_id(), tick_id) > 10)
+            {
+                super_packet->set_flag(super_packet_flags::handshake);
+            }
+
+            // Make sure we are ready for the next valid block
+            _expected_tick_id = reader.tick_id();
+            _last_tick_id_read = reader.tick_id();
+
             // Overwrite default
             _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
             _loop_counter = 0;
@@ -177,15 +196,6 @@ namespace kaminari
                 super_packet->set_flag(kaminari::super_packet_flags::ack);
                 super_packet->set_flag(kaminari::super_packet_flags::handshake);
             }
-        }
-
-        // Acknowledge user acks
-        reader.handle_acks<TimeBase>(super_packet, this, client);
-
-        // Let's add it to pending acks
-        if (is_handshake || reader.has_data() || reader.is_ping_packet())
-        {
-            super_packet->schedule_ack(reader.id());
         }
     }
 
@@ -204,18 +214,9 @@ namespace kaminari
         super_packet_reader reader = client->first_super_packet();
 		
         // Handshake process skips all procedures, including order
+        // TODO(gpascualg): Can we skip this check?
         if (reader.has_flag(kaminari::super_packet_flags::handshake))
         {
-			// Make sure we are ready for the next valid block
-            //_expected_tick_id = cx::overflow::inc(reader.id());
-
-            //// Reset all variables related to packet parsing
-            //_timestamp_block_id = _expected_tick_id;
-            //_timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
-            //_loop_counter = 0;
-            //_already_resolved.clear();
-            
-            // Do nothing
             _last_tick_id_read = reader.tick_id();
             return;
         }

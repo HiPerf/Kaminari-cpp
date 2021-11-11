@@ -31,7 +31,7 @@ namespace kaminari
         inline void clean() noexcept;
 
         template <typename TimeBase>
-        inline void received_packet(const boost::intrusive_ptr<data_wrapper>& data);
+        inline void received_packet(uint16_t tick_id, const boost::intrusive_ptr<data_wrapper>& data);
 
         inline kaminari::super_packet<Queues>* super_packet();
         inline kaminari::protocol* protocol();
@@ -73,7 +73,7 @@ namespace kaminari
 
     template <typename Marshal, typename Queues, stateful_callback... StatefulCallbacks>
     template <typename TimeBase>
-    inline void client<Marshal, Queues, StatefulCallbacks...>::received_packet(const boost::intrusive_ptr<data_wrapper>& data)
+    inline void client<Marshal, Queues, StatefulCallbacks...>::received_packet(uint16_t tick_id, const boost::intrusive_ptr<data_wrapper>& data)
     {
         super_packet_reader reader(data);
 
@@ -84,7 +84,7 @@ namespace kaminari
         }
 
         // Handle all acks now
-        _protocol.template handle_acks<TimeBase>(reader, this, _marshal, super_packet());
+        _protocol.template handle_acks<TimeBase>(tick_id, reader, this, _marshal, super_packet());
 
         // TODO(gpascualg): Ideally, we want to start searching from rbegin(), but then we can't insert
         auto it = _pending_super_packets.begin();
