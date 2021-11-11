@@ -264,9 +264,11 @@ namespace kaminari
 
         assert((ptr - data) == super_packet_header_size + super_packet_ack_size && "Ack size does not match");
 
+        // TODO(gpascualg): Do not use magic numbers in super packet
         // How much packet is there left?
         //  -1 is to account for the number of blocks
-        uint16_t remaining = super_packet_max_size - (ptr - data) - 1;
+        //  -1 more to account for start at 0
+        uint16_t remaining = super_packet_max_size - (ptr - data) - 1 - 1;
 
         // Set that we didn't run short of space
         _last_left_data = false;
