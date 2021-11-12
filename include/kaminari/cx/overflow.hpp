@@ -41,6 +41,12 @@ namespace cx
         }
 
         template <typename T>
+        inline constexpr T add(T x, T y)
+        {
+            return static_cast<T>(x + y);
+        }
+
+        template <typename T>
         inline constexpr T sub(T x, T y)
         {
             return
