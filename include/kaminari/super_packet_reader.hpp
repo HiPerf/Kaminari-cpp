@@ -141,7 +141,7 @@ namespace kaminari
 
         // Set some upper limit to avoid exploits
         int remaining = _data->size - (block_pos - _data->data); // Keep it signed on purpouse
-        for (uint8_t i = 0; i < num_blocks; ++i)
+        for (uint8_t i = 0; i < num_blocks && remaining > 0; ++i)
         {
             uint16_t block_id = *reinterpret_cast<const uint16_t*>(block_pos);
             uint8_t num_packets = *reinterpret_cast<const uint8_t*>(block_pos + sizeof(uint16_t));
