@@ -152,7 +152,7 @@ namespace kaminari
         }
 
         // Now update marshal if it has too
-        marshal.update(client, _last_tick_id_read);
+        marshal.update(client, _expected_tick_id);
         _expected_tick_id = cx::overflow::inc(_expected_tick_id);
         return true;
     }
