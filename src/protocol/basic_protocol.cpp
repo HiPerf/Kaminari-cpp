@@ -26,8 +26,9 @@ namespace kaminari
         _expected_tick_id = 0;
         _timestamp = 0;
         _timestamp_block_id = 0;
-        _already_resolved.clear();
-        _loop_counter = 0;
+        _resolution_table.fill(0);
+        _oldest_resolution_block_id = 0;
+        _oldest_resolution_position = 0;
         _max_blocks_until_resync = 200;
         _max_blocks_until_disconnection = 300;
         _ping_interval = 20;
@@ -35,49 +36,48 @@ namespace kaminari
 
     bool basic_protocol::resolve(basic_client* client, buffers::packet_reader* packet, uint16_t block_id) noexcept
     {
-        auto opcode = packet->opcode();
-        uint32_t extended_id = packet->extended_id();
-
-        if (auto it = _already_resolved.find(block_id); it != _already_resolved.end())
+        // Check if this is an older block id
+        if (cx::overflow::le(block_id, _oldest_resolution_block_id))
         {
-            auto& info = it->second;
-
-            // Clear structure
-            if (info.loop_counter != _loop_counter)
-            {
-                // Maybe we are still in the turning point
-                if (cx::overflow::sub(_last_tick_id_read, block_id) > _max_blocks_until_resync)
-                {
-                    info.loop_counter = _loop_counter;
-                    info.extended_counter.clear();
-                }
-            }
-            // Resync detection
-            else if (cx::overflow::sub(_last_tick_id_read, block_id) > _max_blocks_until_resync)
-            {
-                client->flag_desync();
-                return false;
-            }
-
-            // Check if block has already been parsed
-            if (auto jt = info.extended_counter.find(extended_id); jt != info.extended_counter.end())
-            {
-                return false;
-            }
-
-            info.extended_counter.insert(extended_id);
+            reset_resolution_table(block_id);
+            client->flag_desync();
+            return false;
         }
-        else
+
+        // Otherwise, it might be newer
+        auto diff = cx::overflow::sub(block_id, _oldest_resolution_block_id);
+        if (diff >= resolution_table_size)
         {
-            _already_resolved.emplace(block_id, resolved_block {
-                .loop_counter = _loop_counter,
-                .extended_counter = std::set<uint32_t> { extended_id }
-            });
+            // Clean oldest, as it is a newer packet that hasn't been parsed yet
+            _resolution_table[_oldest_resolution_position] = 0;
+
+            // We have to move oldest so that newest points to block_id
+            auto move_amount = cx::overflow::sub(diff, resolution_table_diff);
+            _oldest_resolution_block_id = cx::overflow::add(_oldest_resolution_block_id, move_amount);
+            _oldest_resolution_position = cx::overflow::add(_oldest_resolution_position, move_amount) % resolution_table_size;
+        }
+
+        // Compute packet mask
+        uint64_t mask = static_cast<uint64_t>(1) << packet->counter();
+
+        // Get block_id position, bitmask, and compute
+        auto idx = cx::overflow::add(_oldest_resolution_position, diff) % resolution_table_size;
+        if (_resolution_table[idx] & mask)
+        {
+            // The packet is already in
+            return false;
         }
         
+        _resolution_table[idx] |= mask;
         return true;
     }
 
+    void basic_protocol::reset_resolution_table(uint16_t block_id) noexcept
+    {
+        _resolution_table.fill(0);
+        _oldest_resolution_block_id = cx::overflow::sub(block_id, static_cast<uint16_t>(resolution_table_size / 2));
+        _oldest_resolution_position = 0;
+    }
 
     std::optional<std::chrono::steady_clock::time_point> basic_protocol::super_packet_timestamp(uint16_t block_id) noexcept
     {

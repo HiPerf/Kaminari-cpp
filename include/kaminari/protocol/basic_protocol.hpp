@@ -2,6 +2,7 @@
 
 #include <kaminari/cx/overflow.hpp>
 
+#include <array>
 #include <chrono>
 #include <inttypes.h>
 #include <optional>
@@ -18,6 +19,9 @@ namespace kaminari
 
     class basic_client;
 
+    // TODO(gpascualg): 200 is the default resync diff, magic number
+    constexpr inline uint16_t resolution_table_size = 200 * 4;
+    constexpr inline uint16_t resolution_table_diff = resolution_table_size - 1;
 
     class basic_protocol
     {
@@ -30,6 +34,7 @@ namespace kaminari
         bool update() noexcept;
         void reset() noexcept;
         bool resolve(basic_client* client, buffers::packet_reader* packet, uint16_t block_id) noexcept;
+        void reset_resolution_table(uint16_t block_id) noexcept;
 
         inline void scheduled_ping() noexcept;
 
@@ -68,13 +73,9 @@ namespace kaminari
         uint16_t _timestamp_block_id;
 
         // Conflict resolution
-        struct resolved_block
-        {
-            uint8_t loop_counter;
-            std::set<uint32_t> extended_counter;
-        };
-        std::unordered_map<uint16_t, resolved_block> _already_resolved;
-        uint8_t _loop_counter;
+        std::array<uint64_t, resolution_table_size> _resolution_table;
+        uint16_t _oldest_resolution_block_id;
+        uint16_t _oldest_resolution_position;
 
         // Configuration
         uint16_t _max_blocks_until_resync;

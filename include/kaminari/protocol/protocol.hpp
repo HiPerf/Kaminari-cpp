@@ -79,7 +79,6 @@ namespace kaminari
         }
 
         bool first_packet = true;
-        super_packet->prepare();
         while (super_packet->finish(tick_id, first_packet))
         {
             if (!super_packet->has_flag(kaminari::super_packet_flags::handshake))
@@ -185,9 +184,7 @@ namespace kaminari
 
             // Overwrite default
             _timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
-            _loop_counter = 0;
-
-            _already_resolved.clear();
+            reset_resolution_table(reader.tick_id());
             marshal.reset();
 
             // Acks have no implication for us, but non-acks mean we have to ack
@@ -230,12 +227,6 @@ namespace kaminari
         {
             initiate_handshake(super_packet);
             client->flag_desync();
-        }
-
-        // Detect loop
-        if (_last_tick_id_read > reader.tick_id()) // Ie. 65536 > 0
-        {
-            _loop_counter = cx::overflow::inc(_loop_counter);
         }
 
         // Handle all inner packets
