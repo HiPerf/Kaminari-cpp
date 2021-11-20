@@ -55,6 +55,9 @@ namespace kaminari
             auto move_amount = cx::overflow::sub(diff, resolution_table_diff);
             _oldest_resolution_block_id = cx::overflow::add(_oldest_resolution_block_id, move_amount);
             _oldest_resolution_position = cx::overflow::add(_oldest_resolution_position, move_amount) % resolution_table_size;
+
+            // Fix diff so we don't overrun the new position
+            diff = cx::overflow::sub(diff, move_amount);
         }
 
         // Compute packet mask
