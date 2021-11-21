@@ -73,6 +73,7 @@ namespace kaminari
         void schedule_ack(uint16_t block_id);
 
         // Obtain buffer
+        inline void prepare() noexcept;
         bool finish(uint16_t tick_id, bool is_first);
         void free(data_buffer* buffer);
 
@@ -88,6 +89,7 @@ namespace kaminari
         uint8_t _flags;
         uint8_t _internal_flags;
         bool _last_left_data;
+        uint8_t _counter;
 
         // Needs acks from client
         uint16_t _ack_base;
@@ -134,6 +136,7 @@ namespace kaminari
         _must_ack = 0;
         _write_pointer = 0;
         _read_pointer = 0;
+        _counter = 0;
 
         // Have one value ready
         _data_buffers.push_back(new data_buffer{
@@ -211,6 +214,12 @@ namespace kaminari
         }
 
         _must_ack = true;
+    }
+
+    template <typename Queues>
+    void super_packet<Queues>::prepare() noexcept
+    {
+        _counter = 0;
     }
 
     template <typename Queues>
@@ -298,7 +307,6 @@ namespace kaminari
                 }
 
                 // Write in the packet
-                uint8_t counter = 0;
                 for (auto& [id, pending_packets] : by_block)
                 {
                     static_assert(super_packet_block_size == sizeof(uint16_t) + sizeof(uint8_t), "Packet block size does not match");
@@ -314,7 +322,7 @@ namespace kaminari
                     {
                         if (id == tick_id)
                         {
-                            pending->finish(counter++);
+                            pending->finish(_counter++);
                         }
 
                         memcpy(ptr, pending->raw(), pending->size());

@@ -79,6 +79,7 @@ namespace kaminari
         }
 
         bool first_packet = true;
+        super_packet->prepare();
         while (super_packet->finish(tick_id, first_packet))
         {
             if (!super_packet->has_flag(kaminari::super_packet_flags::handshake))
