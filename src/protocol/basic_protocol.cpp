@@ -45,26 +45,26 @@ namespace kaminari
         }
 
         // Otherwise, it might be newer
-        auto diff = cx::overflow::sub(block_id, _oldest_resolution_block_id);
+        uint16_t diff = cx::overflow::sub(block_id, _oldest_resolution_block_id);
+        uint16_t idx = cx::overflow::add(_oldest_resolution_position, diff) % resolution_table_size;
         if (diff >= resolution_table_size)
         {
-            // Clean oldest, as it is a newer packet that hasn't been parsed yet
-            _resolution_table[_oldest_resolution_position] = 0;
-
             // We have to move oldest so that newest points to block_id
             auto move_amount = cx::overflow::sub(diff, resolution_table_diff);
             _oldest_resolution_block_id = cx::overflow::add(_oldest_resolution_block_id, move_amount);
             _oldest_resolution_position = cx::overflow::add(_oldest_resolution_position, move_amount) % resolution_table_size;
 
             // Fix diff so we don't overrun the new position
-            diff = cx::overflow::sub(diff, move_amount);
+            idx = cx::overflow::sub(idx, move_amount) % resolution_table_size;
+
+            // Clean position, as it is a newer packet that hasn't been parsed yet
+            _resolution_table[idx] = 0;
         }
 
         // Compute packet mask
         uint64_t mask = static_cast<uint64_t>(1) << packet->counter();
 
         // Get block_id position, bitmask, and compute
-        auto idx = cx::overflow::add(_oldest_resolution_position, diff) % resolution_table_size;
         if (_resolution_table[idx] & mask)
         {
             // The packet is already in
