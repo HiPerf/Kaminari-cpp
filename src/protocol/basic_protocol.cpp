@@ -55,7 +55,7 @@ namespace kaminari
             _oldest_resolution_position = cx::overflow::add(_oldest_resolution_position, move_amount) % resolution_table_size;
 
             // Fix diff so we don't overrun the new position
-            idx = cx::overflow::sub(idx, move_amount) % resolution_table_size;
+            idx = cx::overflow::add(_oldest_resolution_position, cx::overflow::sub(diff, move_amount)) % resolution_table_size;
 
             // Clean position, as it is a newer packet that hasn't been parsed yet
             _resolution_table[idx] = 0;
