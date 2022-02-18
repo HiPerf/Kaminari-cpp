@@ -1,3 +1,4 @@
 build/
 *~
 diff.patch
+.cache

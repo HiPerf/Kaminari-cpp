@@ -10,5 +10,8 @@ option(Boost_USE_STATIC_LIBS    "Use Boost static libs"     ON)
 set(BOOST_VERSION "1.73" CACHE STRING "Boost version")
 option(KAMINARI_DISABLE_ADDONS  "Disable optional addons"   OFF)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(target_link_libraries_system)
+
 add_subdirectory(src)
 add_subdirectory(dep)
