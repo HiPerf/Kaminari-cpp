@@ -67,7 +67,7 @@ namespace kaminari
         uint8_t _buffer_size;
         uint16_t _since_last_ping;
         uint16_t _since_last_recv;
-        uint16_t _last_tick_id_read;
+        uint16_t _last_tick_id_read; 
         uint16_t _expected_tick_id;
         uint64_t _timestamp;
         uint16_t _timestamp_block_id;
@@ -83,8 +83,11 @@ namespace kaminari
         uint16_t _ping_interval;
 
         // Lag estimation
-        std::unordered_map<uint16_t, std::chrono::steady_clock::time_point> _send_timestamps;
-    };
+        std::array<std::chrono::steady_clock::time_point, resolution_table_size> _timestamps;
+        uint16_t _timestamp_head_position;
+        uint16_t _timestamp_head_id;
+        uint16_t _last_confirmed_timestamp_id;
+   };
 
 
     inline void basic_protocol::scheduled_ping() noexcept

@@ -1,8 +1,10 @@
+#include "kaminari/cx/overflow.hpp"
 #include <kaminari/protocol/basic_protocol.hpp>
 #include <kaminari/buffers/packet.hpp>
 #include <kaminari/buffers/packet_reader.hpp>
 #include <kaminari/client/basic_client.hpp>
 #include <kaminari/super_packet.hpp>
+#include <optional>
 
 
 namespace kaminari
@@ -32,6 +34,10 @@ namespace kaminari
         _max_blocks_until_resync = 200;
         _max_blocks_until_disconnection = 300;
         _ping_interval = 20;
+        _timestamps.fill(std::chrono::steady_clock::now());
+        _timestamp_head_position = 0;
+        _timestamp_head_id = 0;
+        _last_confirmed_timestamp_id = 0;
     }
 
     bool basic_protocol::resolve(basic_client* client, buffers::packet_reader* packet, uint16_t block_id) noexcept
@@ -84,13 +90,14 @@ namespace kaminari
 
     std::optional<std::chrono::steady_clock::time_point> basic_protocol::super_packet_timestamp(uint16_t block_id) noexcept
     {
-        if (auto it = _send_timestamps.find(block_id); it != _send_timestamps.end())
+        // TODO(gpascualg): Configurable/non-hardcoded max blocks diff for 
+        if (cx::overflow::geq(_last_confirmed_timestamp_id, block_id) && cx::overflow::sub(_timestamp_head_id, _last_confirmed_timestamp_id) < 100)
         {
-            auto ts = it->second;
-            _send_timestamps.erase(block_id);
-            return ts;
+            return std::nullopt;
         }
 
-        return std::nullopt;
+        _last_confirmed_timestamp_id = block_id;
+        uint16_t position = cx::overflow::sub(_timestamp_head_position, cx::overflow::sub(_timestamp_head_id, block_id)) % resolution_table_size;
+        return _timestamps[position];
     }
 }

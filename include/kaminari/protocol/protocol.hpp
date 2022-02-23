@@ -82,10 +82,11 @@ namespace kaminari
         super_packet->prepare();
         while (super_packet->finish(tick_id, first_packet))
         {
-            if (!super_packet->has_flag(kaminari::super_packet_flags::handshake))
-            {
-                _send_timestamps.emplace(super_packet->id(), std::chrono::steady_clock::now());
-            }
+            // Move head
+            uint16_t packet_id_diff = cx::overflow::sub(super_packet->id(), _timestamp_head_id);
+            _timestamp_head_position = cx::overflow::add(_timestamp_head_position, packet_id_diff) % resolution_table_size;
+            _timestamps[_timestamp_head_position] = std::chrono::steady_clock::now();
+            _timestamp_head_id = super_packet->id();
 
             first_packet = false;
 
@@ -96,14 +97,11 @@ namespace kaminari
             }
         }
 
+        // TODO(gpascualg): This is, at the very least, ugly. Try to simplify buffer freeing logic
         // first_packet will only be true if no superpacket has been finished
         //  that is, if there is nothing to send
         if (first_packet)
         {
-            // TODO(gpascualg): Find a better way to erase old timestamps
-            // If there is no new superpacket, erase it from the map
-            _send_timestamps.erase(super_packet->id());
-
             // Reaching here means there is nothing to send, but the superpacket increased
             //  its write pointer, which means we must increase read pointer to compensate
             super_packet->free(super_packet->next_buffer());
