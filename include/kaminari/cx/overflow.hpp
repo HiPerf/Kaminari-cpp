@@ -2,6 +2,7 @@
 
 #include <limits>
 #include <inttypes.h>
+#include <type_traits>
 
 
 namespace cx
@@ -56,8 +57,14 @@ namespace cx
         template <typename T>
         inline constexpr T abs_diff(T x, T y)
         {
-            return
+            return 
                 (x >= y) ? static_cast<T>(x - y) : static_cast<T>(y - x);
+        }
+
+        template <typename T>
+        inline constexpr std::make_signed_t<T> signed_diff(T x, T y)
+        {
+            return ge(x, y) ? sub(x, y) : -static_cast<std::make_signed_t<T>>(sub(x, y));
         }
 
         template <typename T>

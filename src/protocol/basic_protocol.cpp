@@ -25,7 +25,6 @@ namespace kaminari
         _buffer_size = 0;
         _since_last_ping = 0;
         _since_last_recv = 0;
-        _expected_tick_id = 0;
         _timestamp = 0;
         _timestamp_block_id = 0;
         _resolution_table.fill(0);

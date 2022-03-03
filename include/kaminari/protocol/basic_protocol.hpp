@@ -39,9 +39,6 @@ namespace kaminari
         inline void scheduled_ping() noexcept;
 
         inline uint16_t last_tick_id_read() const noexcept;
-        inline uint16_t expected_block_id() const noexcept;
-       
-        inline void override_expected_tick_id(uint16_t value) noexcept;
 
         inline void set_timestamp(uint64_t timestamp, uint16_t block_id) noexcept;
 
@@ -68,7 +65,6 @@ namespace kaminari
         uint16_t _since_last_ping;
         uint16_t _since_last_recv;
         uint16_t _last_tick_id_read; 
-        uint16_t _expected_tick_id;
         uint64_t _timestamp;
         uint16_t _timestamp_block_id;
 
@@ -98,16 +94,6 @@ namespace kaminari
     inline uint16_t basic_protocol::last_tick_id_read() const noexcept
     {
         return _last_tick_id_read;
-    }
-
-    inline uint16_t basic_protocol::expected_block_id() const noexcept
-    { 
-        return _expected_tick_id; 
-    }
-
-    inline void basic_protocol::override_expected_tick_id(uint16_t value) noexcept
-    {
-        _expected_tick_id = value;
     }
 
     inline void basic_protocol::set_timestamp(uint64_t timestamp, uint16_t block_id) noexcept
