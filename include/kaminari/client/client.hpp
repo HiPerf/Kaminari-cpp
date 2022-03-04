@@ -77,9 +77,13 @@ namespace kaminari
     {
         super_packet_reader reader(data);
 
-        // Make sure to ignore old packets
-        if (_protocol.is_out_of_order(reader.tick_id()) && !reader.has_flag(super_packet_flags::handshake))
+        if (reader.has_flag(super_packet_flags::handshake))
         {
+            _pending_super_packets.clear();
+        }
+        else if (_protocol.is_out_of_order(reader.tick_id()))
+        {
+            // Make sure to ignore old packets
             return;
         }
 

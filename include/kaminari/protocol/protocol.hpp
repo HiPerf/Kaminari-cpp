@@ -196,7 +196,7 @@ namespace kaminari
     void protocol::read_impl(::kaminari::basic_client* client, Marshal& marshal, ::kaminari::super_packet<Queues>* super_packet, uint16_t tick_id)
     {
         super_packet_reader reader = client->first_super_packet();
-		
+
         // Handshake process skips all procedures, including order
         // TODO(gpascualg): Can we skip this check?
         if (reader.has_flag(kaminari::super_packet_flags::handshake))
