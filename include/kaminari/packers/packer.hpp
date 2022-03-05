@@ -46,6 +46,8 @@ namespace kaminari
         inline uint16_t get_actual_tick_id(const std::vector<uint16_t>& internal_ticks, uint16_t tick_id);
         inline uint16_t new_tick_block_cost(uint16_t tick_id, detail::packets_by_block& by_block);
 
+        inline bool any_pending() const noexcept;
+
     protected:
         // TODO(gpascualg): Revisit packer busy loop
         detail::pending_data<Pending>* get_pending_data(const Pending& d)
@@ -186,5 +188,11 @@ namespace kaminari
     {
         // Returns 'super_packet_block_size' if tick_id is not in by_block, otherwise 0
         return static_cast<uint16_t>(by_block.find(tick_id) == by_block.end()) * super_packet_block_size;
+    }
+
+    template <typename Derived, typename Pending, class Allocator>
+    inline bool packer<Derived, Pending, Allocator>::any_pending() const noexcept
+    {
+        return !_pending.empty();
     }
 }

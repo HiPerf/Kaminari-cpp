@@ -4,6 +4,7 @@
 #include <kaminari/packers/immediate_packer.hpp>
 #include <kaminari/packers/ordered_packer.hpp>
 #include <kaminari/packers/vector_merge_packer.hpp>
+#include <kaminari/packers/vector_merge_with_priority_packer.hpp>
 #include <stdlib.h>
 
 
@@ -57,18 +58,18 @@ struct test_data_5
     {
         return test_data_5 {
             .x = 0,
-            .y = 0,
-            .z = 0
+                .y = 0,
+                .z = 0
         };
     }
 };
 
 PACK(struct _test_data_5_packed
-{
-    uint8_t x;
-    uint16_t y;
-    uint32_t z;
-});
+        {
+        uint8_t x;
+        uint16_t y;
+        uint32_t z;
+        });
 
 
 struct test_data_1_with_id
@@ -76,8 +77,9 @@ struct test_data_1_with_id
     uint64_t id;
     uint8_t x;
     float priority;
+    float priority_multiplier;
 
-    static auto get() { return test_data_1_with_id { .id = (uint64_t)(rand() % 516), .x = 0, .priority = rand() / (float)RAND_MAX  }; }
+    static auto get() { return test_data_1_with_id { .id = (uint64_t)(rand() % 516), .x = 0, .priority = rand() / (float)RAND_MAX, .priority_multiplier = 1.5f }; }
 };
 PACK(struct _test_data_1_with_id_packed { uint64_t id; uint8_t x; });
 
@@ -86,8 +88,9 @@ struct test_data_2_with_id
     uint64_t id;
     uint16_t x;
     float priority;
+    float priority_multiplier;
 
-    static auto get() { return test_data_2_with_id { .id = (uint64_t)(rand() % 516), .x = 0, .priority = rand() / (float)RAND_MAX  }; }
+    static auto get() { return test_data_2_with_id { .id = (uint64_t)(rand() % 516), .x = 0, .priority = rand() / (float)RAND_MAX, .priority_multiplier = 1.5f  }; }
 };
 PACK(struct _test_data_2_with_id_packed { uint64_t id; uint16_t x; });
 
@@ -97,8 +100,9 @@ struct test_data_3_with_id
     uint8_t x;
     uint16_t y;
     float priority;
+    float priority_multiplier;
 
-    static auto get() { return test_data_3_with_id { .id = (uint64_t)(rand() % 516), .x = 0, .y = 0, .priority = rand() / (float)RAND_MAX  }; }
+    static auto get() { return test_data_3_with_id { .id = (uint64_t)(rand() % 516), .x = 0, .y = 0, .priority = rand() / (float)RAND_MAX, .priority_multiplier = 1.5f  }; }
 };
 PACK(struct _test_data_3_with_id_packed { uint64_t id; uint8_t x; uint16_t y; });
 
@@ -107,8 +111,9 @@ struct test_data_4_with_id
     uint64_t id;
     uint32_t x;
     float priority;
+    float priority_multiplier;
 
-    static auto get() { return test_data_4_with_id { .id = (uint64_t)(rand() % 516), .x = 0, .priority = rand() / (float)RAND_MAX }; }
+    static auto get() { return test_data_4_with_id { .id = (uint64_t)(rand() % 516), .x = 0, .priority = rand() / (float)RAND_MAX, .priority_multiplier = 1.5f }; }
 };
 PACK(struct _test_data_4_with_id_packed { uint64_t id; uint32_t x; });
 
@@ -119,30 +124,32 @@ struct test_data_5_with_id
     uint16_t y;
     uint32_t z;
     float priority;
+    float priority_multiplier;
 
     static auto get() noexcept
     {
         return test_data_5_with_id {
             .id = (uint64_t)(rand() % 516),
-            .x = 0,
-            .y = 0,
-            .z = 0,
-            .priority = rand() / (float)RAND_MAX
+                .x = 0,
+                .y = 0,
+                .z = 0,
+                .priority = rand() / (float)RAND_MAX,
+                .priority_multiplier = 1.5f
         };
     }
 };
 
 PACK(struct _test_data_5_with_id_packed
-{
-    uint64_t id;
-    uint8_t x;
-    uint16_t y;
-    uint32_t z;
-});
+        {
+        uint64_t id;
+        uint8_t x;
+        uint16_t y;
+        uint32_t z;
+        });
 
 std::string gen_random(const int len) {
     static const char alphanum[] =
-        "0123456789"
+        "012356789"
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz";
     std::string tmp_s;
@@ -151,7 +158,7 @@ std::string gen_random(const int len) {
     for (int i = 0; i < len; ++i) {
         tmp_s += alphanum[rand() % (sizeof(alphanum) - 1)];
     }
-    
+
     return tmp_s;
 }
 
@@ -172,13 +179,15 @@ struct test_dynamic_with_id
     uint64_t id;
     std::string x;
     float priority;
+    float priority_multiplier;
 
     static auto get() noexcept
     {
         return test_dynamic_with_id {
             .id = (uint64_t)(rand() % 516),
             .x = gen_random((rand() % 12) + 1),
-            .priority = rand() / (float)RAND_MAX
+            .priority = rand() / (float)RAND_MAX,
+            .priority_multiplier = 1.5f
         };
     }
 };
@@ -191,123 +200,123 @@ struct test_ev_sync
 
 class test_marshal
 {
-public:
+    public:
 
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_1& data)
-    {
-        *packet << data.x;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_2& data)
-    {
-        *packet << data.x;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_3& data)
-    {
-        *packet << data.x;
-        *packet << data.y;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_4& data)
-    {
-        *packet << data.x;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_5& data)
-    {
-        *packet << data.x;
-        *packet << data.y;
-        *packet << data.z;
-    }
-    
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_dynamic& data)
-    {
-        *packet << data.x;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_1_with_id& data)
-    {
-        *packet << data.id;
-        *packet << data.x;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_2_with_id& data)
-    {
-        *packet << data.id;
-        *packet << data.x;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_3_with_id& data)
-    {
-        *packet << data.id;
-        *packet << data.x;
-        *packet << data.y;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_4_with_id& data)
-    {
-        *packet << data.id;
-        *packet << data.x;
-    }
-
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_5_with_id& data)
-    {
-        *packet << data.id;
-        *packet << data.x;
-        *packet << data.y;
-        *packet << data.z;
-    }
-    
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_dynamic_with_id& data)
-    {
-        *packet << data.id;
-        *packet << data.x;
-    }
-
-    template <typename T>
-    static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_ev_sync<T>& data)
-    {
-        *packet << (uint8_t)data.data.size();
-        for (const auto& d : data.data)
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_1& data)
         {
-            pack(packet, d);
+            *packet << data.x;
         }
-    }
 
-    static uint8_t sizeof_test_data_1() { return sizeof(_test_data_1_packed); }
-    static uint8_t packet_size(const test_data_1& data) { return sizeof(_test_data_1_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_2& data)
+        {
+            *packet << data.x;
+        }
 
-    static uint8_t sizeof_test_data_2() { return sizeof(_test_data_2_packed); }
-    static uint8_t packet_size(const test_data_2& data) { return sizeof(_test_data_2_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_3& data)
+        {
+            *packet << data.x;
+            *packet << data.y;
+        }
 
-    static uint8_t sizeof_test_data_3() { return sizeof(_test_data_3_packed); }
-    static uint8_t packet_size(const test_data_3& data) { return sizeof(_test_data_3_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_4& data)
+        {
+            *packet << data.x;
+        }
 
-    static uint8_t sizeof_test_data_4() { return sizeof(_test_data_4_packed); }
-    static uint8_t packet_size(const test_data_4& data) { return sizeof(_test_data_4_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_5& data)
+        {
+            *packet << data.x;
+            *packet << data.y;
+            *packet << data.z;
+        }
 
-    static uint8_t sizeof_test_data_5() { return sizeof(_test_data_5_packed); }
-    static uint8_t packet_size(const test_data_5& data) { return sizeof(_test_data_5_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_dynamic& data)
+        {
+            *packet << data.x;
+        }
 
-    static uint8_t packet_size(const test_dynamic& data) { return sizeof(uint8_t) + data.x.size(); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_1_with_id& data)
+        {
+            *packet << data.id;
+            *packet << data.x;
+        }
 
-    static uint8_t sizeof_test_data_1_with_id() { return sizeof(_test_data_1_with_id_packed); }
-    static uint8_t packet_size(const test_data_1_with_id& data) { return sizeof(_test_data_1_with_id_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_2_with_id& data)
+        {
+            *packet << data.id;
+            *packet << data.x;
+        }
 
-    static uint8_t sizeof_test_data_2_with_id() { return sizeof(_test_data_2_with_id_packed); }
-    static uint8_t packet_size(const test_data_2_with_id& data) { return sizeof(_test_data_2_with_id_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_3_with_id& data)
+        {
+            *packet << data.id;
+            *packet << data.x;
+            *packet << data.y;
+        }
 
-    static uint8_t sizeof_test_data_3_with_id() { return sizeof(_test_data_3_with_id_packed); }
-    static uint8_t packet_size(const test_data_3_with_id& data) { return sizeof(_test_data_3_with_id_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_4_with_id& data)
+        {
+            *packet << data.id;
+            *packet << data.x;
+        }
 
-    static uint8_t sizeof_test_data_4_with_id() { return sizeof(_test_data_4_with_id_packed); }
-    static uint8_t packet_size(const test_data_4_with_id& data) { return sizeof(_test_data_4_with_id_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_data_5_with_id& data)
+        {
+            *packet << data.id;
+            *packet << data.x;
+            *packet << data.y;
+            *packet << data.z;
+        }
 
-    static uint8_t sizeof_test_data_5_with_id() { return sizeof(_test_data_5_with_id_packed); }
-    static uint8_t packet_size(const test_data_5_with_id& data) { return sizeof(_test_data_5_with_id_packed); }
+        static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_dynamic_with_id& data)
+        {
+            *packet << data.id;
+            *packet << data.x;
+        }
 
-    static uint8_t packet_size(const test_dynamic_with_id& data) { return sizeof(uint64_t) + sizeof(uint8_t) + data.x.size(); }
+        template <typename T>
+            static void pack(const boost::intrusive_ptr<::kaminari::buffers::packet>& packet, const test_ev_sync<T>& data)
+            {
+                *packet << (uint8_t)data.data.size();
+                for (const auto& d : data.data)
+                {
+                    pack(packet, d);
+                }
+            }
+
+        static uint8_t sizeof_test_data_1() { return sizeof(_test_data_1_packed); }
+        static uint8_t packet_size(const test_data_1& data) { return sizeof(_test_data_1_packed); }
+
+        static uint8_t sizeof_test_data_2() { return sizeof(_test_data_2_packed); }
+        static uint8_t packet_size(const test_data_2& data) { return sizeof(_test_data_2_packed); }
+
+        static uint8_t sizeof_test_data_3() { return sizeof(_test_data_3_packed); }
+        static uint8_t packet_size(const test_data_3& data) { return sizeof(_test_data_3_packed); }
+
+        static uint8_t sizeof_test_data_4() { return sizeof(_test_data_4_packed); }
+        static uint8_t packet_size(const test_data_4& data) { return sizeof(_test_data_4_packed); }
+
+        static uint8_t sizeof_test_data_5() { return sizeof(_test_data_5_packed); }
+        static uint8_t packet_size(const test_data_5& data) { return sizeof(_test_data_5_packed); }
+
+        static uint8_t packet_size(const test_dynamic& data) { return sizeof(uint8_t) + data.x.size(); }
+
+        static uint8_t sizeof_test_data_1_with_id() { return sizeof(_test_data_1_with_id_packed); }
+        static uint8_t packet_size(const test_data_1_with_id& data) { return sizeof(_test_data_1_with_id_packed); }
+
+        static uint8_t sizeof_test_data_2_with_id() { return sizeof(_test_data_2_with_id_packed); }
+        static uint8_t packet_size(const test_data_2_with_id& data) { return sizeof(_test_data_2_with_id_packed); }
+
+        static uint8_t sizeof_test_data_3_with_id() { return sizeof(_test_data_3_with_id_packed); }
+        static uint8_t packet_size(const test_data_3_with_id& data) { return sizeof(_test_data_3_with_id_packed); }
+
+        static uint8_t sizeof_test_data_4_with_id() { return sizeof(_test_data_4_with_id_packed); }
+        static uint8_t packet_size(const test_data_4_with_id& data) { return sizeof(_test_data_4_with_id_packed); }
+
+        static uint8_t sizeof_test_data_5_with_id() { return sizeof(_test_data_5_with_id_packed); }
+        static uint8_t packet_size(const test_data_5_with_id& data) { return sizeof(_test_data_5_with_id_packed); }
+
+        static uint8_t packet_size(const test_dynamic_with_id& data) { return sizeof(uint64_t) + sizeof(uint8_t) + data.x.size(); }
 };
 
 ::kaminari::buffers::packet* get_kaminari_packet(uint16_t opcode)
@@ -333,658 +342,486 @@ uint16_t get_total_size(const kaminari::detail::packets_by_block& by_block)
     return total_size;
 }
 
+std::size_t get_total_processed(const kaminari::detail::packets_by_block& by_block)
+{
+    std::size_t total_processed = 0;
+    for (const auto& [block, data] : by_block)
+    {
+        total_processed += data.size();
+    }
+    return total_processed;
+}
+
+
+template <typename Packer, typename Allocator, typename Data>
+void add_and_process(uint8_t resend_threshold, int num_packets)
+{
+    Packer packer(resend_threshold, Allocator());
+
+    WHEN("it processes")
+    {
+        uint16_t tick_id = 0;
+        uint16_t block_id = 0;
+        bool add_packets = true;
+        while (packer.any_pending() || tick_id == 0)
+        {
+            if (add_packets)
+            {
+                add_packets = false;
+                for (int i = 0; i < num_packets / (tick_id + 1); ++i)
+                {
+                    packer.add(1010, Data::get());
+                }
+            }
+
+            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
+            uint16_t max_data_size = remaining;
+            bool unfitting_data = false;
+            kaminari::detail::packets_by_block by_block;
+
+            packer.process(tick_id, block_id++, remaining, unfitting_data, by_block);
+            // Rand block processed
+            if (rand() / (float)RAND_MAX > 0.6f)
+            {
+                packer.ack(block_id - 1);
+            }
+
+            printf("At %u / %u processed %lld in %lld blocks, remaining %u\n", tick_id, block_id, get_total_processed(by_block), by_block.size(), remaining);
+            if (by_block.empty())
+            {
+                ++tick_id;
+                add_packets = true;
+                continue;
+            }
+
+            THEN("remaining is whithin constraints")
+            {
+                REQUIRE(remaining >= 0);
+                REQUIRE(remaining < max_data_size);
+            }
+
+            THEN("size is whithin constraints")
+            {
+                REQUIRE(get_total_size(by_block) < max_data_size);
+            }
+
+            THEN("not all data fit")
+            {
+                REQUIRE(unfitting_data);
+            }
+        }
+    }
+}
+
 SCENARIO("an immediate_packer processes many accumulated data")
 {
     using allocator_t = std::allocator<kaminari::immediate_packer_allocator_t>;
-    kaminari::immediate_packer<test_marshal, allocator_t> ip(2, allocator_t());
+    using packer_t = kaminari::immediate_packer<test_marshal, allocator_t>;
 
-    GIVEN("1000 data, 1 byte each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 1")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_1::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_1>(1, 200);
     }
 
-    GIVEN("1000 data, 2 bytes each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 2")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_2::get());
-        }
-
-        WHEN("it processes")
-        {
-            while (true)
-            {
-                uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-                uint16_t max_data_size = remaining;
-                bool unfitting_data = true;
-                kaminari::detail::packets_by_block by_block;
-                ip.process(0, 0, remaining, unfitting_data, by_block);
-
-                if (by_block.empty())
-                {
-                    break;
-                }
-                // printf("PROCESSED, remaining: %u / %u, total: %lld\n", remaining, max_data_size, by_block.size());
-
-                THEN("remaining is whithin constraints")
-                {
-                    REQUIRE(remaining >= 0);
-                    REQUIRE(remaining < max_data_size);
-                }
-
-                THEN("size is whithin constraints")
-                {
-                    REQUIRE(get_total_size(by_block) < max_data_size);
-                }
-
-                THEN("not all data fit")
-                {
-                    REQUIRE(unfitting_data);
-                }
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_1>(2, 200);
     }
 
-    GIVEN("1000 data, 3 bytes each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 3")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_3::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_1>(3, 200);
     }
 
-    GIVEN("1000 data, 4 bytes each")
+    // 2 BYTES
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 1")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_4::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_2>(1, 200);
     }
 
-    GIVEN("1000 data, 5 bytes each")
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 2")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_5::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_2>(2, 200);
     }
 
-    GIVEN("1000 data, 1-13 bytes each")
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 3")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_dynamic::get());
-        }
+        add_and_process<packer_t, allocator_t, test_data_2>(3, 200);
+    }
 
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
+    // 3 BYTES
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 1")
+    {
+        add_and_process<packer_t, allocator_t, test_data_3>(1, 200);
+    }
 
-            ip.process(0, 0, remaining, unfitting_data, by_block);
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 2")
+    {
+        add_and_process<packer_t, allocator_t, test_data_3>(2, 200);
+    }
 
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 3")
+    {
+        add_and_process<packer_t, allocator_t, test_data_3>(3, 200);
+    }
 
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
+    // 4 BYTES
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 1")
+    {
+        add_and_process<packer_t, allocator_t, test_data_4>(1, 200);
+    }
 
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 2")
+    {
+        add_and_process<packer_t, allocator_t, test_data_4>(2, 200);
+    }
+
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 3")
+    {
+        add_and_process<packer_t, allocator_t, test_data_4>(3, 200);
+    }
+
+    // 5 BYTES
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 1")
+    {
+        add_and_process<packer_t, allocator_t, test_data_5>(1, 200);
+    }
+
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 2")
+    {
+        add_and_process<packer_t, allocator_t, test_data_5>(2, 200);
+    }
+
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 3")
+    {
+        add_and_process<packer_t, allocator_t, test_data_5>(3, 200);
+    }
+
+    // DYNAMIC
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 1")
+    {
+        add_and_process<packer_t, allocator_t, test_dynamic>(1, 200);
+    }
+
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 2")
+    {
+        add_and_process<packer_t, allocator_t, test_dynamic>(2, 200);
+    }
+
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 3")
+    {
+        add_and_process<packer_t, allocator_t, test_dynamic>(3, 200);
     }
 }
 
 
-SCENARIO("a ordered_packer processes many accumulated data")
+SCENARIO("an ordered_packer processes many accumulated data")
 {
     using allocator_t = std::allocator<kaminari::ordered_packer_allocator_t>;
-    kaminari::ordered_packer<test_marshal, allocator_t> ip(2, allocator_t());
+    using packer_t = kaminari::ordered_packer<test_marshal, allocator_t>;
 
-    GIVEN("1000 data, 1 byte each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 1")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_1::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_1>(1, 200);
     }
 
-    GIVEN("1000 data, 2 bytes each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 2")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_2::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_1>(2, 200);
     }
 
-    GIVEN("1000 data, 3 bytes each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 3")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_3::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_1>(3, 200);
     }
 
-    GIVEN("1000 data, 4 bytes each")
+    // 2 BYTES
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 1")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_4::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_2>(1, 200);
     }
 
-    GIVEN("1000 data, 5 bytes each")
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 2")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_5::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<packer_t, allocator_t, test_data_2>(2, 200);
     }
 
-    GIVEN("1000 data, 1-13 bytes each")
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 3")
     {
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_dynamic::get());
-        }
+        add_and_process<packer_t, allocator_t, test_data_2>(3, 200);
+    }
 
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
+    // 3 BYTES
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 1")
+    {
+        add_and_process<packer_t, allocator_t, test_data_3>(1, 200);
+    }
 
-            ip.process(0, 0, remaining, unfitting_data, by_block);
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 2")
+    {
+        add_and_process<packer_t, allocator_t, test_data_3>(2, 200);
+    }
 
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 3")
+    {
+        add_and_process<packer_t, allocator_t, test_data_3>(3, 200);
+    }
 
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
+    // 4 BYTES
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 1")
+    {
+        add_and_process<packer_t, allocator_t, test_data_4>(1, 200);
+    }
 
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 2")
+    {
+        add_and_process<packer_t, allocator_t, test_data_4>(2, 200);
+    }
+
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 3")
+    {
+        add_and_process<packer_t, allocator_t, test_data_4>(3, 200);
+    }
+
+    // 5 BYTES
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 1")
+    {
+        add_and_process<packer_t, allocator_t, test_data_5>(1, 200);
+    }
+
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 2")
+    {
+        add_and_process<packer_t, allocator_t, test_data_5>(2, 200);
+    }
+
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 3")
+    {
+        add_and_process<packer_t, allocator_t, test_data_5>(3, 200);
+    }
+
+    // DYNAMIC
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 1")
+    {
+        add_and_process<packer_t, allocator_t, test_dynamic>(1, 200);
+    }
+
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 2")
+    {
+        add_and_process<packer_t, allocator_t, test_dynamic>(2, 200);
+    }
+
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 3")
+    {
+        add_and_process<packer_t, allocator_t, test_dynamic>(3, 200);
     }
 }
 
 
-SCENARIO("a vector_merge_packer processes many accumulated data")
+template <typename D>
+using vm_allocator_t = std::allocator<kaminari::vector_merge_packer_allocator_t<D>>;
+
+template <typename D>
+using vm_packer_t = kaminari::vector_merge_packer<uint64_t, test_ev_sync<D>, D, 1010, test_marshal, vm_allocator_t<D>>;
+
+SCENARIO("an vector_merge_packer processes many accumulated data")
 {
-    GIVEN("1000 data, 1 byte each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 1")
     {
-        using allocator_t = std::allocator<kaminari::vector_merge_packer_allocator_t<test_data_1_with_id>>;
-        kaminari::vector_merge_packer<uint64_t, test_ev_sync<test_data_1_with_id>, test_data_1_with_id, 1010, test_marshal, allocator_t> ip(2, allocator_t());
-
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_1_with_id::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<vm_packer_t<test_data_1_with_id>, vm_allocator_t<test_data_1_with_id>, test_data_1_with_id>(1, 200);
     }
 
-    GIVEN("1000 data, 2 bytes each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 2")
     {
-        using allocator_t = std::allocator<kaminari::vector_merge_packer_allocator_t<test_data_2_with_id>>;
-        kaminari::vector_merge_packer<uint64_t, test_ev_sync<test_data_2_with_id>, test_data_2_with_id, 1010, test_marshal, allocator_t> ip(2, allocator_t());
-
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_2_with_id::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<vm_packer_t<test_data_1_with_id>, vm_allocator_t<test_data_1_with_id>, test_data_1_with_id>(2, 200);
     }
 
-    GIVEN("1000 data, 3 bytes each")
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 3")
     {
-        using allocator_t = std::allocator<kaminari::vector_merge_packer_allocator_t<test_data_3_with_id>>;
-        kaminari::vector_merge_packer<uint64_t, test_ev_sync<test_data_3_with_id>, test_data_3_with_id, 1010, test_marshal, allocator_t> ip(2, allocator_t());
-
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_3_with_id::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<vm_packer_t<test_data_1_with_id>, vm_allocator_t<test_data_1_with_id>, test_data_1_with_id>(3, 200);
     }
 
-    GIVEN("1000 data, 4 bytes each")
+    // 2 BYTES
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 1")
     {
-        using allocator_t = std::allocator<kaminari::vector_merge_packer_allocator_t<test_data_4_with_id>>;
-        kaminari::vector_merge_packer<uint64_t, test_ev_sync<test_data_4_with_id>, test_data_4_with_id, 1010, test_marshal, allocator_t> ip(2, allocator_t());
-
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_4_with_id::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<vm_packer_t<test_data_2_with_id>, vm_allocator_t<test_data_2_with_id>, test_data_2_with_id>(1, 200);
     }
 
-    GIVEN("1000 data, 5 bytes each")
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 2")
     {
-        using allocator_t = std::allocator<kaminari::vector_merge_packer_allocator_t<test_data_5_with_id>>;
-        kaminari::vector_merge_packer<uint64_t, test_ev_sync<test_data_5_with_id>, test_data_5_with_id, 1010, test_marshal, allocator_t> ip(2, allocator_t());
-
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_data_5_with_id::get());
-        }
-
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
-
-            ip.process(0, 0, remaining, unfitting_data, by_block);
-
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
-
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
-
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+        add_and_process<vm_packer_t<test_data_2_with_id>, vm_allocator_t<test_data_2_with_id>, test_data_2_with_id>(2, 200);
     }
 
-    GIVEN("1000 data, 1-13 bytes each")
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 3")
     {
-        using allocator_t = std::allocator<kaminari::vector_merge_packer_allocator_t<test_dynamic_with_id>>;
-        kaminari::vector_merge_packer<uint64_t, test_ev_sync<test_dynamic_with_id>, test_dynamic_with_id, 1010, test_marshal, allocator_t> ip(2, allocator_t());
+        add_and_process<vm_packer_t<test_data_2_with_id>, vm_allocator_t<test_data_2_with_id>, test_data_2_with_id>(3, 200);
+    }
 
-        for (int i = 0; i < 1000; ++i)
-        {
-            ip.add(1010, test_dynamic_with_id::get());
-        }
+    // 3 BYTES
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 1")
+    {
+        add_and_process<vm_packer_t<test_data_3_with_id>, vm_allocator_t<test_data_3_with_id>, test_data_3_with_id>(1, 200);
+    }
 
-        WHEN("it processes")
-        {
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
-            uint16_t max_data_size = remaining;
-            bool unfitting_data = false;
-            kaminari::detail::packets_by_block by_block;
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 2")
+    {
+        add_and_process<vm_packer_t<test_data_3_with_id>, vm_allocator_t<test_data_3_with_id>, test_data_3_with_id>(2, 200);
+    }
 
-            ip.process(0, 0, remaining, unfitting_data, by_block);
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 3")
+    {
+        add_and_process<vm_packer_t<test_data_3_with_id>, vm_allocator_t<test_data_3_with_id>, test_data_3_with_id>(3, 200);
+    }
 
-            THEN("remaining is whithin constraints")
-            {
-                REQUIRE(remaining >= 0);
-                REQUIRE(remaining < max_data_size);
-            }
+    // 4 BYTES
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 1")
+    {
+        add_and_process<vm_packer_t<test_data_4_with_id>, vm_allocator_t<test_data_4_with_id>, test_data_4_with_id>(1, 200);
+    }
 
-            THEN("size is whithin constraints")
-            {
-                REQUIRE(get_total_size(by_block) < max_data_size);
-            }
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 2")
+    {
+        add_and_process<vm_packer_t<test_data_4_with_id>, vm_allocator_t<test_data_4_with_id>, test_data_4_with_id>(2, 200);
+    }
 
-            THEN("not all data fit")
-            {
-                REQUIRE(unfitting_data);
-            }
-        }
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 3")
+    {
+        add_and_process<vm_packer_t<test_data_4_with_id>, vm_allocator_t<test_data_4_with_id>, test_data_4_with_id>(3, 200);
+    }
+
+    // 5 BYTES
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 1")
+    {
+        add_and_process<vm_packer_t<test_data_5_with_id>, vm_allocator_t<test_data_5_with_id>, test_data_5_with_id>(1, 200);
+    }
+
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 2")
+    {
+        add_and_process<vm_packer_t<test_data_5_with_id>, vm_allocator_t<test_data_5_with_id>, test_data_5_with_id>(2, 200);
+    }
+
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 3")
+    {
+        add_and_process<vm_packer_t<test_data_5_with_id>, vm_allocator_t<test_data_5_with_id>, test_data_5_with_id>(3, 200);
+    }
+
+    // DYNAMIC
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 1")
+    {
+        add_and_process<vm_packer_t<test_dynamic_with_id>, vm_allocator_t<test_dynamic_with_id>, test_dynamic_with_id>(1, 200);
+    }
+
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 2")
+    {
+        add_and_process<vm_packer_t<test_dynamic_with_id>, vm_allocator_t<test_dynamic_with_id>, test_dynamic_with_id>(2, 200);
+    }
+
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 3")
+    {
+        add_and_process<vm_packer_t<test_dynamic_with_id>, vm_allocator_t<test_dynamic_with_id>, test_dynamic_with_id>(3, 200);
+    }
+}
+
+template <typename D>
+using vmp_allocator_t = std::allocator<kaminari::vector_merge_with_priority_packer_allocator_t<D>>;
+
+template <typename D>
+using vmp_packer_t = kaminari::vector_merge_with_priority_packer<uint64_t, test_ev_sync<D>, D, 1010, test_marshal, vmp_allocator_t<D>>;
+
+SCENARIO("an vector_merge_with_priority_packer processes many accumulated data")
+{
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 1")
+    {
+        add_and_process<vmp_packer_t<test_data_1_with_id>, vmp_allocator_t<test_data_1_with_id>, test_data_1_with_id>(1, 200);
+    }
+
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 2")
+    {
+        add_and_process<vmp_packer_t<test_data_1_with_id>, vmp_allocator_t<test_data_1_with_id>, test_data_1_with_id>(2, 200);
+    }
+
+    GIVEN("1235 data, 1 byte each, with resend_threshold = 3")
+    {
+        add_and_process<vmp_packer_t<test_data_1_with_id>, vmp_allocator_t<test_data_1_with_id>, test_data_1_with_id>(3, 200);
+    }
+
+    // 2 BYTES
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 1")
+    {
+        add_and_process<vmp_packer_t<test_data_2_with_id>, vmp_allocator_t<test_data_2_with_id>, test_data_2_with_id>(1, 200);
+    }
+
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 2")
+    {
+        add_and_process<vmp_packer_t<test_data_2_with_id>, vmp_allocator_t<test_data_2_with_id>, test_data_2_with_id>(2, 200);
+    }
+
+    GIVEN("1235 data, 2 byte each, with resend_threshold = 3")
+    {
+        add_and_process<vmp_packer_t<test_data_2_with_id>, vmp_allocator_t<test_data_2_with_id>, test_data_2_with_id>(3, 200);
+    }
+
+    // 3 BYTES
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 1")
+    {
+        add_and_process<vmp_packer_t<test_data_3_with_id>, vmp_allocator_t<test_data_3_with_id>, test_data_3_with_id>(1, 200);
+    }
+
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 2")
+    {
+        add_and_process<vmp_packer_t<test_data_3_with_id>, vmp_allocator_t<test_data_3_with_id>, test_data_3_with_id>(2, 200);
+    }
+
+    GIVEN("1235 data, 3 byte each, with resend_threshold = 3")
+    {
+        add_and_process<vmp_packer_t<test_data_3_with_id>, vmp_allocator_t<test_data_3_with_id>, test_data_3_with_id>(3, 200);
+    }
+
+    // 4 BYTES
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 1")
+    {
+        add_and_process<vmp_packer_t<test_data_4_with_id>, vmp_allocator_t<test_data_4_with_id>, test_data_4_with_id>(1, 200);
+    }
+
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 2")
+    {
+        add_and_process<vmp_packer_t<test_data_4_with_id>, vmp_allocator_t<test_data_4_with_id>, test_data_4_with_id>(2, 200);
+    }
+
+    GIVEN("1235 data, 4 byte each, with resend_threshold = 3")
+    {
+        add_and_process<vmp_packer_t<test_data_4_with_id>, vmp_allocator_t<test_data_4_with_id>, test_data_4_with_id>(3, 200);
+    }
+
+    // 5 BYTES
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 1")
+    {
+        add_and_process<vmp_packer_t<test_data_5_with_id>, vmp_allocator_t<test_data_5_with_id>, test_data_5_with_id>(1, 200);
+    }
+
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 2")
+    {
+        add_and_process<vmp_packer_t<test_data_5_with_id>, vmp_allocator_t<test_data_5_with_id>, test_data_5_with_id>(2, 200);
+    }
+
+    GIVEN("1235 data, 5 byte each, with resend_threshold = 3")
+    {
+        add_and_process<vmp_packer_t<test_data_5_with_id>, vmp_allocator_t<test_data_5_with_id>, test_data_5_with_id>(3, 200);
+    }
+
+    // DYNAMIC
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 1")
+    {
+        add_and_process<vmp_packer_t<test_dynamic_with_id>, vmp_allocator_t<test_dynamic_with_id>, test_dynamic_with_id>(1, 200);
+    }
+
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 2")
+    {
+        add_and_process<vmp_packer_t<test_dynamic_with_id>, vmp_allocator_t<test_dynamic_with_id>, test_dynamic_with_id>(2, 200);
+    }
+
+    GIVEN("1235 data, 1-13 bytes each, with resend_threshold = 3")
+    {
+        add_and_process<vmp_packer_t<test_dynamic_with_id>, vmp_allocator_t<test_dynamic_with_id>, test_dynamic_with_id>(3, 200);
     }
 }
 
