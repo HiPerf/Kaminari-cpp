@@ -15,3 +15,4 @@ include(target_link_libraries_system)
 
 add_subdirectory(src)
 add_subdirectory(dep)
+add_subdirectory(test)

@@ -1,0 +1,382 @@
+[
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/src/../include -IC:/local/boost_1_77_0 -isystem C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/function-src/include -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o src\\CMakeFiles\\kaminari.dir\\buffers\\packet.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\buffers\\packet.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\buffers\\packet.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/src/../include -IC:/local/boost_1_77_0 -isystem C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/function-src/include -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o src\\CMakeFiles\\kaminari.dir\\buffers\\packet_reader.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\buffers\\packet_reader.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\buffers\\packet_reader.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/src/../include -IC:/local/boost_1_77_0 -isystem C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/function-src/include -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o src\\CMakeFiles\\kaminari.dir\\client\\basic_client.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\client\\basic_client.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\client\\basic_client.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/src/../include -IC:/local/boost_1_77_0 -isystem C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/function-src/include -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o src\\CMakeFiles\\kaminari.dir\\protocol\\basic_protocol.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\protocol\\basic_protocol.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\protocol\\basic_protocol.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/src/../include -IC:/local/boost_1_77_0 -isystem C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/function-src/include -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o src\\CMakeFiles\\kaminari.dir\\super_packet_reader.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\super_packet_reader.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\super_packet_reader.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/src/../include -IC:/local/boost_1_77_0 -isystem C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/function-src/include -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o src\\CMakeFiles\\kaminari.dir\\addons\\peer_based_phase_sync.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\addons\\peer_based_phase_sync.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\src\\addons\\peer_based_phase_sync.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/test/src -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/src/../include -IC:/local/boost_1_77_0 -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -isystem C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/function-src/include -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20 -o test\\src\\CMakeFiles\\kaminari_test.dir\\test_queue_write_size.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\test\\src\\test_queue_write_size.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\test\\src\\test_queue_write_size.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_automake.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_automake.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_automake.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_combined_tu.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_combined_tu.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_combined_tu.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_compact.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_compact.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_compact.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_console.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_console.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_console.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_cumulative_base.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_cumulative_base.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_cumulative_base.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_junit.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_junit.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_junit.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_multi.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_multi.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_multi.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_sonarqube.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_sonarqube.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_sonarqube.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_streaming_base.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_streaming_base.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_streaming_base.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_tap.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_tap.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_tap.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_teamcity.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_teamcity.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_teamcity.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\reporters\\catch_reporter_xml.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_xml.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\reporters\\catch_reporter_xml.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_approx.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_approx.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_approx.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_assertion_handler.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_assertion_handler.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_assertion_handler.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_assertion_result.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_assertion_result.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_assertion_result.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\matchers\\internal\\catch_matchers_combined_tu.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\matchers\\internal\\catch_matchers_combined_tu.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\matchers\\internal\\catch_matchers_combined_tu.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_clara.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_clara.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_clara.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_commandline.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_commandline.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_commandline.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_source_line_info.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_source_line_info.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_source_line_info.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_config.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_config.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_config.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_case_insensitive_comparisons.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_case_insensitive_comparisons.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_case_insensitive_comparisons.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_console_colour.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_console_colour.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_console_colour.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_context.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_context.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_context.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_debug_console.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_debug_console.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_debug_console.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_debugger.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_debugger.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_debugger.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_enforce.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_enforce.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_enforce.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_enum_values_registry.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_enum_values_registry.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_enum_values_registry.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_exception_translator_registry.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_exception_translator_registry.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_exception_translator_registry.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_fatal_condition_handler.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_fatal_condition_handler.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_fatal_condition_handler.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_floating_point_helpers.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_floating_point_helpers.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_floating_point_helpers.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\generators\\internal\\catch_generators_combined_tu.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\generators\\internal\\catch_generators_combined_tu.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\generators\\internal\\catch_generators_combined_tu.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\interfaces\\catch_interfaces_combined_tu.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_combined_tu.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_combined_tu.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\interfaces\\catch_interfaces_reporter.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_reporter.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\interfaces\\catch_interfaces_reporter.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_list.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_list.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_list.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\matchers\\catch_matchers_floating_point.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_floating_point.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_floating_point.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\matchers\\catch_matchers_string.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_string.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_string.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\matchers\\catch_matchers_templated.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_templated.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\matchers\\catch_matchers_templated.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_message.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_message.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_message.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_output_redirect.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_output_redirect.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_output_redirect.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_registry_hub.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_registry_hub.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_registry_hub.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_combined_tu.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_combined_tu.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_combined_tu.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_random_number_generator.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_random_number_generator.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_random_number_generator.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_random_seed_generation.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_random_seed_generation.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_random_seed_generation.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_reporter_registry.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_reporter_registry.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_reporter_registry.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_result_type.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_result_type.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_result_type.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_run_context.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_run_context.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_run_context.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_section.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_section.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_section.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_session.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_session.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_session.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_singletons.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_singletons.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_singletons.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_stream.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_stream.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_stream.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_stringref.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_stringref.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_stringref.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_string_manip.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_string_manip.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_string_manip.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_tag_alias_registry.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_tag_alias_registry.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_tag_alias_registry.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_test_case_info.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_test_case_info.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_test_case_info.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_test_case_registry_impl.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_case_registry_impl.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_case_registry_impl.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_test_case_tracker.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_case_tracker.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_case_tracker.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_test_registry.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_registry.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_registry.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_textflow.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_textflow.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_textflow.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_test_spec.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_test_spec.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_test_spec.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_test_spec_parser.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_spec_parser.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_test_spec_parser.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_timer.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_timer.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_timer.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_tostring.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_tostring.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_tostring.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_totals.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_totals.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_totals.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\catch_version.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_version.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\catch_version.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_wildcard_pattern.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_wildcard_pattern.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_wildcard_pattern.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\internal\\catch_xmlwriter.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_xmlwriter.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_xmlwriter.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\benchmark\\internal\\catch_benchmark_combined_tu.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\benchmark\\internal\\catch_benchmark_combined_tu.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\benchmark\\internal\\catch_benchmark_combined_tu.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2.dir\\catch2\\benchmark\\detail\\catch_stats.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\benchmark\\detail\\catch_stats.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\benchmark\\detail\\catch_stats.cpp"
+},
+{
+  "directory": "C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug",
+  "command": "C:\\opt\\LLVM-13\\bin\\clang++.exe -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src/src/catch2/.. -IC:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/generated-includes -g -Xclang -gcodeview -O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -ffile-prefix-map=C:/Users/gpasc/Documents/Github/Kaminari-cpp/build/windows-debug/_deps/catch2-src=. -o _deps\\catch2-build\\src\\CMakeFiles\\Catch2WithMain.dir\\catch2\\internal\\catch_main.cpp.obj -c C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_main.cpp",
+  "file": "C:\\Users\\gpasc\\Documents\\Github\\Kaminari-cpp\\build\\windows-debug\\_deps\\catch2-src\\src\\catch2\\internal\\catch_main.cpp"
+}
+]
