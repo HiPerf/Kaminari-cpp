@@ -337,6 +337,12 @@ namespace kaminari
 
         // And done
         size = ptr - data;
+#ifndef NDEBUG
+        if (size >= super_packet_max_size)
+        {
+            printf("PACKET OVERFLOW WITH %u > %u, remaining was: %u", size, super_packet_max_size, remaining);
+        }
+#endif
         assert(size < super_packet_max_size && "Superpacket size exceeds maximum");
         return has_acks || has_data || (is_first && _flags != 0);
     }
