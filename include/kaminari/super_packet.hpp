@@ -33,22 +33,23 @@ namespace kaminari
 
     inline constexpr uint32_t super_packet_header_size = sizeof(uint16_t) + sizeof(uint16_t) + sizeof(uint8_t);
     inline constexpr uint32_t super_packet_ack_size = sizeof(uint16_t) + sizeof(uint32_t);
+    inline constexpr uint32_t super_packet_data_prefrace_size = sizeof(uint8_t);
     inline constexpr uint32_t super_packet_block_size = sizeof(uint16_t) + sizeof(uint8_t);
 
     inline constexpr uint16_t super_packet_min_header_size = 5;
     inline constexpr uint16_t super_packet_max_size = 512;
 
+    struct data_buffer
+    {
+        bool in_use;
+        bool sent;
+        uint8_t data[super_packet_max_size];
+        uint16_t size;
+    };
+
     template <typename Queues>
     class super_packet : public Queues
     {
-        struct data_buffer
-        {
-            bool in_use;
-            bool sent;
-            uint8_t data[super_packet_max_size];
-            uint16_t size;
-        };
-
     public:
         template <typename... Args>
         super_packet(uint8_t resend_threshold, Args&&... args);
@@ -110,9 +111,16 @@ namespace kaminari
         Queues(resend_threshold, std::forward<Args>(args)...),
         _id(0),
         _flags(0),
+        _internal_flags(0),
+        _last_left_data(false),
+        _counter(0),
         _ack_base(0),
         _pending_acks(0),
-        _must_ack(false)
+        _must_ack(false),
+        _clear_flags_on_ack(),
+        _write_pointer(0),
+        _read_pointer(0),
+        _data_buffers()
     {}
 
     template <typename Queues>
@@ -130,18 +138,25 @@ namespace kaminari
     {
         _id = 0;
         _flags = 0;
-        Queues::reset();
+        _internal_flags = 0;
+        _last_left_data = false;
+        _counter = 0;
         _ack_base = 0;
         _pending_acks = 0;
-        _must_ack = 0;
+        _must_ack = false;
+        _clear_flags_on_ack.clear();
         _write_pointer = 0;
         _read_pointer = 0;
-        _counter = 0;
+
+        Queues::reset();
 
         // Have one value ready
-        _data_buffers.push_back(new data_buffer{
-            .in_use = false
-        });
+        if (_data_buffers.empty())
+        {
+            _data_buffers.push_back(new data_buffer{
+                .in_use = false
+            });
+        }
     }
 
     template <typename Queues>
@@ -263,11 +278,8 @@ namespace kaminari
 
         assert((ptr - data) == super_packet_header_size + super_packet_ack_size && "Ack size does not match");
 
-        // TODO(gpascualg): Do not use magic numbers in super packet
         // How much packet is there left?
-        //  -1 is to account for the number of blocks
-        //  -1 more to account for start at 0
-        uint16_t remaining = super_packet_max_size - (ptr - data) - 1 - 1;
+        uint16_t remaining = super_packet_max_size - (ptr - data) - super_packet_data_prefrace_size;
 
         // Set that we didn't run short of space
         _last_left_data = false;
@@ -281,6 +293,8 @@ namespace kaminari
             // Write number of blocks
             *reinterpret_cast<uint8_t*>(ptr) = by_block.size();
             ptr += sizeof(uint8_t);
+
+            assert((ptr - data) == super_packet_header_size + super_packet_ack_size + super_packet_data_prefrace_size && "Preface size does not match");
 
             // Do we have any data?
             has_data = !by_block.empty();
@@ -311,11 +325,19 @@ namespace kaminari
                 {
                     static_assert(super_packet_block_size == sizeof(uint16_t) + sizeof(uint8_t), "Packet block size does not match");
 
+#ifndef NDEBUG
+                    auto ptr_before_block_header = ptr;
+#endif
+
                     // Write section identifier and number of packets
                     *reinterpret_cast<uint16_t*>(ptr) = static_cast<uint16_t>(id);
                     ptr += sizeof(uint16_t);
                     *reinterpret_cast<uint8_t*>(ptr) = static_cast<uint8_t>(pending_packets.size());
                     ptr += sizeof(uint8_t);
+
+#ifndef NDEBUG
+                    assert((ptr - ptr_before_block_header) == super_packet_block_size && "Packet block size does not match");
+#endif
 
                     // Write all packets
                     for (auto& pending : pending_packets)
@@ -343,7 +365,7 @@ namespace kaminari
             printf("PACKET OVERFLOW WITH %u > %u, remaining was: %u", size, super_packet_max_size, remaining);
         }
 #endif
-        assert(size < super_packet_max_size && "Superpacket size exceeds maximum");
+        assert(size <= super_packet_max_size && "Superpacket size exceeds maximum");
         return has_acks || has_data || (is_first && _flags != 0);
     }
 
@@ -366,7 +388,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    inline typename super_packet<Queues>::data_buffer* super_packet<Queues>::next_buffer()
+    inline data_buffer* super_packet<Queues>::next_buffer()
     {
         auto buffer = _data_buffers[_read_pointer];
         buffer->sent = true;
@@ -375,7 +397,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    inline const typename super_packet<Queues>::data_buffer* super_packet<Queues>::peek_last_buffer() const
+    inline const data_buffer* super_packet<Queues>::peek_last_buffer() const
     {
         auto pointer = _read_pointer;
         while (true)

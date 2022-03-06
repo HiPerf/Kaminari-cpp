@@ -1,3 +1,4 @@
+#include "kaminari/detail/detail.hpp"
 #include "kaminari/super_packet.hpp"
 #include <catch2/catch_all.hpp>
 
@@ -329,9 +330,9 @@ void release_kaminari_packet(::kaminari::buffers::packet* packet)
     delete packet;
 }
 
-uint16_t get_total_size(const kaminari::detail::packets_by_block& by_block)
+std::size_t get_packets_size(const kaminari::detail::packets_by_block& by_block)
 {
-    uint16_t total_size = 0;
+    std::size_t total_size = 0;
     for (const auto& [block, data] : by_block)
     {
         for (const auto& packet : data)
@@ -340,6 +341,16 @@ uint16_t get_total_size(const kaminari::detail::packets_by_block& by_block)
         }
     }
     return total_size;
+}
+
+std::size_t get_total_size(const kaminari::detail::packets_by_block& by_block)
+{
+    return get_packets_size(by_block) + by_block.size() * kaminari::super_packet_block_size;
+}
+
+std::size_t get_super_packet_size(const kaminari::detail::packets_by_block& by_block)
+{
+    return kaminari::super_packet_header_size + kaminari::super_packet_ack_size + kaminari::super_packet_data_prefrace_size + get_total_size(by_block);
 }
 
 std::size_t get_total_processed(const kaminari::detail::packets_by_block& by_block)
@@ -374,19 +385,19 @@ void add_and_process(uint8_t resend_threshold, int num_packets)
                 }
             }
 
-            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - 2;
+            uint16_t remaining = kaminari::super_packet_max_size - kaminari::super_packet_header_size - kaminari::super_packet_ack_size - kaminari::super_packet_data_prefrace_size;
             uint16_t max_data_size = remaining;
             bool unfitting_data = false;
             kaminari::detail::packets_by_block by_block;
 
             packer.process(tick_id, block_id++, remaining, unfitting_data, by_block);
             // Rand block processed
-            if (rand() / (float)RAND_MAX > 0.6f)
+            if (rand() / (float)RAND_MAX > 0.9f)
             {
                 packer.ack(block_id - 1);
             }
 
-            printf("At %u / %u processed %lld in %lld blocks, remaining %u\n", tick_id, block_id, get_total_processed(by_block), by_block.size(), remaining);
+            printf("At %u / %u processed %lld in %lld blocks, size %lld and remaining %u\n", tick_id, block_id, get_total_processed(by_block), by_block.size(), get_super_packet_size(by_block), remaining);
             if (by_block.empty())
             {
                 ++tick_id;
@@ -402,7 +413,8 @@ void add_and_process(uint8_t resend_threshold, int num_packets)
 
             THEN("size is whithin constraints")
             {
-                REQUIRE(get_total_size(by_block) < max_data_size);
+                REQUIRE(get_packets_size(by_block) < max_data_size); // Because this is without block sizes
+                REQUIRE(get_super_packet_size(by_block) <= kaminari::super_packet_max_size);
             }
 
             THEN("not all data fit")
@@ -420,7 +432,7 @@ SCENARIO("an immediate_packer processes many accumulated data")
 
     GIVEN("1235 data, 1 byte each, with resend_threshold = 1")
     {
-        add_and_process<packer_t, allocator_t, test_data_1>(1, 200);
+        add_and_process<packer_t, allocator_t, test_data_1>(1, 1000);
     }
 
     GIVEN("1235 data, 1 byte each, with resend_threshold = 2")

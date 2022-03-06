@@ -90,8 +90,8 @@ namespace kaminari
             // Create the global structure
             Global global;
 
-            // TODO(gpascualg): MAGIC NUMBERS, 2 is vector size
-            uint16_t size = packet_data_start + 2 + packer_t::new_tick_block_cost(tick_id, by_block);
+            // TODO(gpascualg): MAGIC NUMBERS, 1 is vector size
+            uint16_t size = packet_data_start + 1 + packer_t::new_tick_block_cost(tick_id, by_block);
 
             // Populate it as big as we can
             for (; it != packer_t::_pending.end(); ++it)
