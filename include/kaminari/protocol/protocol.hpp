@@ -102,9 +102,9 @@ namespace kaminari
         //  that is, if there is nothing to send
         if (first_packet)
         {
-            // Reaching here means there is nothing to send, but the superpacket increased
-            //  its write pointer, which means we must increase read pointer to compensate
-            super_packet->free(super_packet->next_buffer());
+            // Reaching here means there is nothing to send, but the superpacket has reserved one buffer
+            //  we must release it
+            super_packet->clear_pending_buffers();
         }
 
         // We have updates if first_packet is false

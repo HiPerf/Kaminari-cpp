@@ -41,8 +41,6 @@ namespace kaminari
 
     struct data_buffer
     {
-        bool in_use;
-        bool sent;
         uint8_t data[super_packet_max_size];
         uint16_t size;
     };
@@ -76,7 +74,6 @@ namespace kaminari
         // Obtain buffer
         inline void prepare() noexcept;
         bool finish(uint16_t tick_id, bool is_first);
-        void free(data_buffer* buffer);
 
         inline uint16_t id() const;
         inline const std::vector<data_buffer*>& pending_buffers() const;
@@ -249,7 +246,6 @@ namespace kaminari
         }
 
         // Current write head
-        _pending_data_buffers.push_back(buffer);
         auto* data = buffer->data;
         auto& size = buffer->size;
         uint8_t* ptr = data;
@@ -366,13 +362,8 @@ namespace kaminari
         }
 #endif
         assert(size <= super_packet_max_size && "Superpacket size exceeds maximum");
+        _pending_data_buffers.push_back(buffer);
         return has_acks || has_data || (is_first && _flags != 0);
-    }
-
-    template <typename Queues>
-    void super_packet<Queues>::free(data_buffer* buffer)
-    {
-        buffer->in_use = false;
     }
 
     template <typename Queues>
@@ -398,15 +389,9 @@ namespace kaminari
     template <typename Queues>
     inline const data_buffer* super_packet<Queues>::peek_last_buffer() const
     {
-        auto pointer = _read_pointer;
-        while (true)
+        if (!_pending_data_buffers.empty())
         {
-            auto next_pointer = (pointer + 1) % _data_buffers.size();
-            if (!_data_buffers[next_pointer]->in_use || next_pointer == _read_pointer)
-            {
-                return _data_buffers[pointer];
-            }
-            pointer = next_pointer;
+            return _pending_data_buffers.back();
         }
 
         return nullptr;
