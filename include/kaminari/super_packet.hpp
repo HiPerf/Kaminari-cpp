@@ -50,37 +50,38 @@ namespace kaminari
     {
     public:
         template <typename... Args>
-        super_packet(uint8_t resend_threshold, Args&&... args);
+        super_packet(uint8_t resend_threshold, Args&&... args) noexcept;
         super_packet(const super_packet& other) = delete;
-        super_packet(super_packet&& other) = default;
-        super_packet& operator=(super_packet&& other) = default;
+        super_packet(super_packet&& other) noexcept = default;
+        super_packet& operator=(super_packet&& other) noexcept = default;
 
-        void clean();
-        void reset();
+        void clean() noexcept;
+        void reset() noexcept;
 
-        void set_flag(super_packet_flags flag);
-        bool has_flag(super_packet_flags flag) const;
+        void set_flag(super_packet_flags flag) noexcept;
+        bool has_flag(super_packet_flags flag) const noexcept;
 
-        void set_internal_flag(super_packet_internal_flags flag);
-        bool has_internal_flag(super_packet_internal_flags flag) const;
-        void clear_internal_flag(super_packet_internal_flags flag);
+        void set_internal_flag(super_packet_internal_flags flag) noexcept;
+        bool has_internal_flag(super_packet_internal_flags flag) const noexcept;
+        void clear_internal_flag(super_packet_internal_flags flag) noexcept;
 
         // Player has acked a packet
-        void ack(uint16_t block_id);
+        void ack(uint16_t block_id) noexcept;
 
         // We are ack'ing a player packet
-        void schedule_ack(uint16_t block_id);
+        void schedule_ack(uint16_t block_id) noexcept;
 
         // Obtain buffer
         inline void prepare() noexcept;
-        bool finish(uint16_t tick_id, bool is_first);
+        bool finish(uint16_t tick_id, bool is_first) noexcept;
 
-        inline uint16_t id() const;
-        inline const std::vector<data_buffer*>& pending_buffers() const;
-        inline void clear_pending_buffers();
-        inline const data_buffer* peek_last_buffer() const;
+        inline uint16_t id() const noexcept;
+        inline const std::vector<data_buffer*>& pending_buffers() const noexcept;
+        inline void release_pending_buffer(data_buffer* buffer) noexcept;
+        inline void clear_pending_buffers() noexcept;
+        inline const data_buffer* peek_last_buffer() const noexcept;
 
-        inline bool last_left_data() const;
+        inline bool last_left_data() const noexcept;
 
     private:
         uint16_t _id;
@@ -103,7 +104,7 @@ namespace kaminari
 
     template <typename Queues>
     template <typename... Args>
-    super_packet<Queues>::super_packet(uint8_t resend_threshold, Args&&... args) :
+    super_packet<Queues>::super_packet(uint8_t resend_threshold, Args&&... args) noexcept :
         Queues(resend_threshold, std::forward<Args>(args)...),
         _id(0),
         _flags(0),
@@ -119,7 +120,7 @@ namespace kaminari
     {}
 
     template <typename Queues>
-    void super_packet<Queues>::clean()
+    void super_packet<Queues>::clean() noexcept
     {
         for (auto buffer : _free_data_buffers)
         {
@@ -135,7 +136,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    void super_packet<Queues>::reset()
+    void super_packet<Queues>::reset() noexcept
     {
         _id = 0;
         _flags = 0;
@@ -153,7 +154,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    void super_packet<Queues>::ack(uint16_t block_id)
+    void super_packet<Queues>::ack(uint16_t block_id) noexcept
     {
         Queues::ack(block_id);
 
@@ -166,7 +167,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    void super_packet<Queues>::set_flag(super_packet_flags flag)
+    void super_packet<Queues>::set_flag(super_packet_flags flag) noexcept
     {
         _flags = _flags | (uint8_t)flag;
 
@@ -182,31 +183,31 @@ namespace kaminari
     }
 
     template <typename Queues>
-    bool super_packet<Queues>::has_flag(super_packet_flags flag) const
+    bool super_packet<Queues>::has_flag(super_packet_flags flag) const noexcept
     {
         return _flags & (uint8_t)flag;
     }
 
     template <typename Queues>
-    void super_packet<Queues>::set_internal_flag(super_packet_internal_flags flag)
+    void super_packet<Queues>::set_internal_flag(super_packet_internal_flags flag) noexcept
     {
         _internal_flags = _internal_flags | (uint8_t)flag;
     }
 
     template <typename Queues>
-    bool super_packet<Queues>::has_internal_flag(super_packet_internal_flags flag) const
+    bool super_packet<Queues>::has_internal_flag(super_packet_internal_flags flag) const noexcept
     {
         return _internal_flags & (uint8_t)flag;
     }
 
     template <typename Queues>
-    void super_packet<Queues>::clear_internal_flag(super_packet_internal_flags flag)
+    void super_packet<Queues>::clear_internal_flag(super_packet_internal_flags flag) noexcept
     {
         _internal_flags = _internal_flags & (~(uint8_t)flag);
     }
 
     template <typename Queues>
-    void super_packet<Queues>::schedule_ack(uint16_t block_id)
+    void super_packet<Queues>::schedule_ack(uint16_t block_id) noexcept
     {
         // Move pending acks
         if (cx::overflow::ge(block_id, _ack_base))
@@ -231,7 +232,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    bool super_packet<Queues>::finish(uint16_t tick_id, bool is_first)
+    bool super_packet<Queues>::finish(uint16_t tick_id, bool is_first) noexcept
     {
         // Check if we have any available slots
         data_buffer* buffer = nullptr;
@@ -367,27 +368,31 @@ namespace kaminari
     }
 
     template <typename Queues>
-    inline uint16_t super_packet<Queues>::id() const
+    inline uint16_t super_packet<Queues>::id() const noexcept
     {
         return _id;
     }
 
     template <typename Queues>
-    inline const std::vector<data_buffer*>& super_packet<Queues>::pending_buffers() const
+    inline const std::vector<data_buffer*>& super_packet<Queues>::pending_buffers() const noexcept
     {
         return _pending_data_buffers;
     }
 
     template <typename Queues>
-    inline void super_packet<Queues>::clear_pending_buffers()
+    inline void super_packet<Queues>::release_pending_buffer(data_buffer* buffer) noexcept
     {
-        _free_data_buffers.reserve(_free_data_buffers.size() + _pending_data_buffers.size());
-        _free_data_buffers.insert(_free_data_buffers.end(), _pending_data_buffers.begin(), _pending_data_buffers.end());
+        _free_data_buffers.push_back(buffer);
+    }
+
+    template <typename Queues>
+    inline void super_packet<Queues>::clear_pending_buffers() noexcept
+    {
         _pending_data_buffers.clear();
     }
 
     template <typename Queues>
-    inline const data_buffer* super_packet<Queues>::peek_last_buffer() const
+    inline const data_buffer* super_packet<Queues>::peek_last_buffer() const noexcept
     {
         if (!_pending_data_buffers.empty())
         {
@@ -398,7 +403,7 @@ namespace kaminari
     }
 
     template <typename Queues>
-    inline bool super_packet<Queues>::last_left_data() const
+    inline bool super_packet<Queues>::last_left_data() const noexcept
     {
         return _last_left_data;
     }

@@ -104,6 +104,7 @@ namespace kaminari
         {
             // Reaching here means there is nothing to send, but the superpacket has reserved one buffer
             //  we must release it
+            super_packet->release_pending_buffer(super_packet->pending_buffers().back());
             super_packet->clear_pending_buffers();
         }
 
