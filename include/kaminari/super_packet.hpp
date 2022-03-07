@@ -79,8 +79,8 @@ namespace kaminari
         void free(data_buffer* buffer);
 
         inline uint16_t id() const;
-        inline bool has_buffer() const;
-        inline data_buffer* next_buffer();
+        inline const std::vector<data_buffer*>& pending_buffers() const;
+        inline void clear_pending_buffers();
         inline const data_buffer* peek_last_buffer() const;
 
         inline bool last_left_data() const;
@@ -99,9 +99,8 @@ namespace kaminari
         std::unordered_map<uint16_t, uint8_t> _clear_flags_on_ack;
 
         // Data arrays
-        uint8_t _write_pointer;
-        uint8_t _read_pointer;
-        std::vector<data_buffer*> _data_buffers;
+        std::vector<data_buffer*> _free_data_buffers;
+        std::vector<data_buffer*> _pending_data_buffers;
     };
 
 
@@ -118,19 +117,24 @@ namespace kaminari
         _pending_acks(0),
         _must_ack(false),
         _clear_flags_on_ack(),
-        _write_pointer(0),
-        _read_pointer(0),
-        _data_buffers()
+        _free_data_buffers(),
+        _pending_data_buffers()
     {}
 
     template <typename Queues>
     void super_packet<Queues>::clean()
     {
-        for (auto buffer : _data_buffers)
+        for (auto buffer : _free_data_buffers)
         {
             delete buffer;
         }
-        _data_buffers.clear();
+        _free_data_buffers.clear();
+
+        for (auto buffer : _pending_data_buffers)
+        {
+            delete buffer;
+        }
+        _pending_data_buffers.clear();
     }
 
     template <typename Queues>
@@ -145,18 +149,10 @@ namespace kaminari
         _pending_acks = 0;
         _must_ack = false;
         _clear_flags_on_ack.clear();
-        _write_pointer = 0;
-        _read_pointer = 0;
+        _free_data_buffers.clear();
+        _pending_data_buffers.clear();
 
         Queues::reset();
-
-        // Have one value ready
-        if (_data_buffers.empty())
-        {
-            _data_buffers.push_back(new data_buffer{
-                .in_use = false
-            });
-        }
     }
 
     template <typename Queues>
@@ -241,17 +237,21 @@ namespace kaminari
     bool super_packet<Queues>::finish(uint16_t tick_id, bool is_first)
     {
         // Check if we have any available slots
-        if (_data_buffers[_write_pointer]->in_use)
+        data_buffer* buffer = nullptr;
+        if (_free_data_buffers.empty())
         {
-            _data_buffers.insert(_data_buffers.cbegin() + _write_pointer, new data_buffer{});
+            buffer = new data_buffer();
+        }
+        else 
+        {
+            buffer = _free_data_buffers.back();
+            _free_data_buffers.pop_back();
         }
 
         // Current write head
-        _data_buffers[_write_pointer]->in_use = true;
-        _data_buffers[_write_pointer]->sent = false;
-        auto* data = _data_buffers[_write_pointer]->data;
-        auto& size = _data_buffers[_write_pointer]->size;
-        _write_pointer = (_write_pointer + 1) % _data_buffers.size();
+        _pending_data_buffers.push_back(buffer);
+        auto* data = buffer->data;
+        auto& size = buffer->size;
         uint8_t* ptr = data;
 
         // Superpacket header is [TICK_ID, PACKET_ID, FLAGS, ACK_BASE, ACKS]
@@ -382,18 +382,17 @@ namespace kaminari
     }
 
     template <typename Queues>
-    inline bool super_packet<Queues>::has_buffer() const
+    inline const std::vector<data_buffer*>& super_packet<Queues>::pending_buffers() const
     {
-        return !_data_buffers[_read_pointer]->sent && _data_buffers[_read_pointer]->in_use;
+        return _pending_data_buffers;
     }
 
     template <typename Queues>
-    inline data_buffer* super_packet<Queues>::next_buffer()
+    inline void super_packet<Queues>::clear_pending_buffers()
     {
-        auto buffer = _data_buffers[_read_pointer];
-        buffer->sent = true;
-        _read_pointer = (_read_pointer + 1) % _data_buffers.size();
-        return buffer;
+        _free_data_buffers.reserve(_free_data_buffers.size() + _pending_data_buffers.size());
+        _free_data_buffers.insert(_free_data_buffers.end(), _pending_data_buffers.begin(), _pending_data_buffers.end());
+        _pending_data_buffers.clear();
     }
 
     template <typename Queues>
