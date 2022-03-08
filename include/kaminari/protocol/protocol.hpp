@@ -208,7 +208,11 @@ namespace kaminari
 
         // Unordered packets are not to be parsed, as they contain outdated information
         // in case that information was important, it would have already been resent and not added
-        assert(!is_out_of_order(reader.tick_id()) && "An out of order packet should never reach here");
+        // Malformed packets by bad-agents can reach this stage, just ignore them
+        if (is_out_of_order(reader.tick_id()))
+        {
+            return;
+        }
 
         // Check how old the packet is wrt what we expect
         if (cx::overflow::sub(tick_id, reader.tick_id()) > max_blocks_until_resync())
